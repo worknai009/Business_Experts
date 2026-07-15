@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/footer.tsx","./src/components/navbar.tsx","./src/components/pagehero.tsx","./src/components/servicegrid.tsx","./src/data/sitecontent.ts","./src/pages/aboutpage.tsx","./src/pages/contactpage.tsx","./src/pages/homepage.tsx","./src/pages/servicespage.tsx","./src/pages/whowearepage.tsx"],"version":"5.9.3"}
