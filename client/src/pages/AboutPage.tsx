@@ -1,36 +1,58 @@
+import { ArrowRight } from "lucide-react";
 import PageHero from "../components/PageHero";
-import { images, stats } from "../data/siteContent";
+import {
+  programBrand,
+  programConcept,
+  programImages,
+  trainingModel,
+  trainingModelNote
+} from "../data/perfectManContent";
 
 function AboutPage() {
   return (
     <main>
       <PageHero
-        eyebrow="About Us"
-        title="Built for Global Investors Entering India"
-        copy="We combine legal, financial, real estate, compliance, and operating support so foreign businesses can enter India with clarity and confidence."
-        image={images.handshake}
+        crumb="About"
+        eyebrow={programBrand.company}
+        title="About the Program"
+        copy={programConcept.general}
+        image={programImages.concept}
       />
 
       <section className="split-section">
         <div className="section-media">
-          <img className="feature-image" src={images.team} alt="Consulting team discussion" />
+          <img className="feature-image" src={programImages.child} alt="Children learning together" />
+          <div className="media-accent" aria-hidden="true" />
         </div>
         <div className="section-content">
-          <p className="eyebrow">Our Approach</p>
-          <h2>Practical Strategy, Local Execution</h2>
-          <p>
-            We work as your on-ground partner from the first market entry decision to entity setup,
-            approvals, factory readiness, operational vendor coordination, and expansion planning.
-          </p>
-          <div className="stats">
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <strong>{stat.value}</strong>
-                <span>{stat.label}</span>
-              </div>
-            ))}
-          </div>
+          <p className="eyebrow">Program Concept</p>
+          <h2>{programBrand.tagline}</h2>
+          <p>{programConcept.child}</p>
+          <p>{programConcept.childApproach}</p>
+          <p className="age-badge">For Children &amp; Young Adults | {programBrand.ageGroup}</p>
         </div>
+      </section>
+
+      <section className="training-model dark-section">
+        <div className="section-heading">
+          <p className="eyebrow">Training Model</p>
+          <h2>Our Training Method</h2>
+        </div>
+        <div className="model-flow">
+          {trainingModel.map((step, index) => {
+            const Icon = step.icon;
+            return (
+              <div className="model-step-wrap" key={step.label}>
+                <div className="model-step">
+                  <span className="model-icon"><Icon size={26} /></span>
+                  <strong>{step.label}</strong>
+                </div>
+                {index < trainingModel.length - 1 && <ArrowRight className="model-arrow" size={22} />}
+              </div>
+            );
+          })}
+        </div>
+        <p className="model-note">{trainingModelNote}</p>
       </section>
     </main>
   );

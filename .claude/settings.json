@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(command -v chromium-cli)",
+      "Bash(curl -sf http://localhost:5173)",
+      "Bash(break)",
+      "Read(//c/Program Files \\\\\\(x86\\\\\\)/Microsoft/Edge/Application/**)",
+      "Read(//c/Program Files/Microsoft/Edge/Application/**)",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Bash(cd \"/c/Users/user/AppData/Local/Temp/claude/c--Worknai-Projects-BusinessExperts/991426bb-4845-40cf-8971-5d2439586a8b/scratchpad\" && npm init -y >/dev/null 2>&1 && npm install puppeteer-core --no-audit --no-fund 2>&1 | tail -2)",
+      "Read(//c/Users/user/AppData/Local/Temp/claude/c--Worknai-Projects-BusinessExperts/991426bb-4845-40cf-8971-5d2439586a8b/scratchpad/**)",
+      "Bash(node shoot.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5174/vite.svg)",
+      "Bash(node shoot-mobile.js)",
+      "Bash(node shoot-services.js)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 5174,5175 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalPort, OwningProcess | ForEach-Object { $p = Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue; \"$\\($_.LocalPort\\) -> PID $\\($_.OwningProcess\\) \\($\\($p.ProcessName\\)\\)\" })",
+      "PowerShell(Stop-Process -Id 1316,7492 -Force -Confirm:$false)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 5173,5174,5175 -State Listen -ErrorAction SilentlyContinue)",
+      "Bash(sed 's/\\\\x1b\\\\[[0-9;]*m//g' \"C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Worknai-Projects-BusinessExperts\\\\991426bb-4845-40cf-8971-5d2439586a8b\\\\tasks\\\\bbsyz5qv1.output\")",
+      "Bash(node shoot-final.js)",
+      "PowerShell(Start-Service -Name MongoDB)",
+      "PowerShell(Get-Service -Name MongoDB)",
+      "Bash(node shot.js http://localhost:5173 hero.png)",
+      "Bash(node shot.js http://localhost:5173 hero2.png)",
+      "Bash(node shot.js http://localhost:5173 hero3.png)",
+      "Bash(node shot.js http://localhost:5173 hero4.png)",
+      "Bash(node shot.js http://localhost:5173 full.png --full)",
+      "Bash(node shot.js http://localhost:5173 full2.png --full)"
+    ]
+  }
+}

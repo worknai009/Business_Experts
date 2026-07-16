@@ -1,46 +1,69 @@
-import { Menu } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 
 const navItems = [
   { label: "Home", to: "/" },
-  { label: "About Us", to: "/about-us" },
-  { label: "Services", to: "/services" },
-  { label: "Who We Are", to: "/who-we-are" },
+  { label: "About", to: "/about" },
+  { label: "Programs", to: "/programs" },
+  { label: "Modules", to: "/modules" },
+  { label: "Admissions", to: "/admissions" },
   { label: "Contact", to: "/contact" }
 ];
 
 function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const closeMenu = () => setMenuOpen(false);
+
+  const renderItem = (item: (typeof navItems)[number]) => (
+    <NavLink
+      key={item.to}
+      to={item.to}
+      className={({ isActive }) => (isActive ? "active" : undefined)}
+      end={item.to === "/"}
+      onClick={closeMenu}
+    >
+      {item.label}
+    </NavLink>
+  );
+
   return (
     <header className="site-header">
-      <NavLink className="logo-box" to="/" aria-label="Business Expert Asia home">
+      <NavLink className="logo-box" to="/" aria-label="Perfect Man home" onClick={closeMenu}>
         <div className="logo-mark">
           <span className="logo-orbit" />
-          <span className="logo-core">BEA</span>
+          <span className="logo-core">PM</span>
         </div>
         <span className="logo-text">
-          <strong>Business Expert</strong>
-          <small>Asia</small>
+          <strong>Perfect Man</strong>
+          <small>by Excelsus</small>
         </span>
       </NavLink>
 
       <nav className="main-nav" aria-label="Primary navigation">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) => (isActive ? "active" : undefined)}
-            end={item.to === "/"}
-          >
-            {item.label}
-          </NavLink>
-        ))}
+        {navItems.map(renderItem)}
       </nav>
 
-      <NavLink className="get-started" to="/contact">Get Started</NavLink>
+      <NavLink className="get-started" to="/contact">Enroll Now</NavLink>
 
-      <button className="menu-button" aria-label="Open menu">
-        <Menu size={28} />
+      <button
+        className="menu-button"
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen((open) => !open)}
+      >
+        {menuOpen ? <X size={28} /> : <Menu size={28} />}
       </button>
+
+      {menuOpen && (
+        <nav className="mobile-nav" aria-label="Mobile navigation">
+          {navItems.map(renderItem)}
+          <Link className="get-started mobile-cta" to="/contact" onClick={closeMenu}>
+            Enroll Now
+          </Link>
+        </nav>
+      )}
     </header>
   );
 }

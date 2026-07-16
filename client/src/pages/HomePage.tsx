@@ -1,96 +1,187 @@
+import { ArrowRight, GraduationCap, Phone, Sparkles, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-import ServiceGrid from "../components/ServiceGrid";
-import { images, stats, strengths, whyIndia } from "../data/siteContent";
+import {
+  admissionsCta,
+  positioningQuote,
+  programBrand,
+  programConcept,
+  programFormats,
+  programImages,
+  programOutcomes
+} from "../data/perfectManContent";
+
+const heroStats = [
+  { value: "8–18", label: "Age Group (Years)" },
+  { value: "6+", label: "Training Modules" },
+  { value: "4", label: "Flexible Formats" },
+  { value: "1:1", label: "Personal Assessment" }
+];
 
 function HomePage() {
   return (
     <main>
-      <section className="home-hero dark-section">
+      <section className="program-hero dark-section">
+        <span className="blob blob-a" aria-hidden="true" />
+        <span className="blob blob-b" aria-hidden="true" />
         <div className="hero-copy">
-          <p className="pill">Your Partner To Success</p>
-          <h1>
-            Your Business Success Starts in <span>India</span>
-          </h1>
-          <p>
-            Empowering global investors to establish, grow, and succeed in India's dynamic market
-            with 100% compliance.
+          <p className="pill">
+            <Sparkles size={13} /> {programBrand.company}
           </p>
-          <div className="hero-actions">
-            <Link to="/services" className="primary-btn">Explore Services</Link>
-            <Link to="/contact" className="secondary-btn">Free Consultation</Link>
+          <p className="program-tagline">{programBrand.tagline}</p>
+          <h1>
+            {programBrand.name} <span>&amp; {programBrand.childName}</span>
+          </h1>
+          <p className="program-subtitle">{programBrand.subtitle}</p>
+          <p>{programBrand.taglineSub}</p>
+          <div className="program-chips">
+            {programBrand.focusChips.map((chip) => (
+              <span key={chip}>{chip}</span>
+            ))}
           </div>
+          <div className="hero-actions">
+            <Link to="/contact" className="primary-btn">
+              Join Now <ArrowRight size={17} />
+            </Link>
+            <a className="secondary-btn" href={admissionsCta.phoneHref}>
+              <Phone size={16} /> {admissionsCta.phone}
+            </a>
+          </div>
+          <p className="hero-meta">
+            <Users size={16} /> For Children &amp; Young Adults · {programBrand.ageGroup}
+          </p>
         </div>
         <div className="hero-panel">
-          <img src={images.hero} alt="Business investors meeting in India" />
+          <img src={programImages.hero} alt="Confident children learning together" />
+          <div className="hero-float-card">
+            <GraduationCap />
+            <div>
+              <strong>Personal Improvement Roadmap</strong>
+              <span>for every child, from day one</span>
+            </div>
+          </div>
+          <div className="hero-badge">
+            <span className="pulse-dot" /> Admissions Open
+          </div>
         </div>
       </section>
 
-      <section className="split-section">
-        <div className="section-media">
-          <img className="feature-image" src={images.boardroom} alt="Business growth discussion" />
-        </div>
-        <div className="section-content">
-          <p className="eyebrow">Who We Are</p>
-          <h2>Business Expert Asia | Start, Invest & Grow</h2>
-          <p>
-            We provide end-to-end solutions for foreign companies and investors to establish their
-            businesses in India, from incorporation and compliance to land, import-export, and growth.
-          </p>
-          <div className="stats">
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <strong>{stat.value}</strong>
-                <span>{stat.label}</span>
-              </div>
-            ))}
-          </div>
+      <section className="stats-band">
+        <div className="stats-card">
+          {heroStats.map((stat) => (
+            <div className="stat" key={stat.label}>
+              <strong>{stat.value}</strong>
+              <span>{stat.label}</span>
+            </div>
+          ))}
         </div>
       </section>
+
+      <section className="split-section home-concept">
+        <div className="section-media">
+          <img
+            className="feature-image"
+            src={programImages.concept}
+            alt="Child building confidence through guided learning"
+          />
+          <div className="media-accent" aria-hidden="true" />
+        </div>
+        <div className="section-content">
+          <p className="eyebrow">Program Concept</p>
+          <h2>
+            Identify. Improve. <span className="accent">Transform.</span>
+          </h2>
+          <p>{programConcept.general}</p>
+          <p>{programConcept.child}</p>
+          <Link to="/about" className="text-link">
+            Learn more about the program <ArrowRight size={16} />
+          </Link>
+        </div>
+      </section>
+
+      <div className="marquee" aria-hidden="true">
+        <div className="marquee-track">
+          {[0, 1].map((copy) => (
+            <div className="marquee-group" key={copy}>
+              {[...programBrand.focusChips, "Practical Training", "Activity-Based Learning"].map(
+                (item) => (
+                  <span key={`${copy}-${item}`}>
+                    {item} <em>✦</em>
+                  </span>
+                )
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
 
       <section className="services-section">
         <div className="section-heading">
-          <p className="eyebrow center">What We Offer</p>
-          <h2>Comprehensive Solutions</h2>
-          <p className="section-copy">End-to-end services tailored for business success in India.</p>
+          <p className="eyebrow">Program Structure</p>
+          <h2>Flexible Formats for Every Schedule</h2>
+          <p className="section-copy">
+            Daily sessions, weekends, a crash course, or a complete transformation journey — pick
+            the pace that suits your child.
+          </p>
         </div>
-        <ServiceGrid />
-        <Link className="outline-btn" to="/services">View All Services</Link>
+        <div className="format-grid">
+          {programFormats.map((format) => {
+            const Icon = format.icon;
+            return (
+              <div className="format-card" key={format.title}>
+                <Icon />
+                <h3>{format.title}</h3>
+                <p>{format.schedule}</p>
+              </div>
+            );
+          })}
+        </div>
+        <div className="hero-actions center-actions">
+          <Link to="/programs" className="primary-btn">
+            Explore All Programs <ArrowRight size={17} />
+          </Link>
+        </div>
       </section>
 
-      <section className="split-section">
-        <div className="section-media">
-          <img className="feature-image" src={images.india} alt="India opportunity landscape" />
+      <section className="outcomes-section dark-section">
+        <div className="section-heading">
+          <p className="eyebrow">The Result</p>
+          <h2>Your Child Will Become</h2>
         </div>
-        <div className="section-content">
-          <p className="eyebrow">Why India?</p>
-          <h2>The Land of Opportunities</h2>
-          <p>India has surpassed major economies to become a global powerhouse.</p>
-          <ul>
-            {whyIndia.map((item) => {
-              const Icon = item.icon;
-              return <li key={item.text}><Icon size={18} /> {item.text}</li>;
-            })}
-          </ul>
-          <Link className="text-link" to="/who-we-are">Read Market Analysis +</Link>
+        <div className="outcome-grid">
+          {programOutcomes.map((outcome) => {
+            const Icon = outcome.icon;
+            return (
+              <div className="outcome-tile" key={outcome.label}>
+                <span className="outcome-icon">
+                  <Icon size={26} />
+                </span>
+                <strong>{outcome.label}</strong>
+              </div>
+            );
+          })}
         </div>
+        <blockquote className="positioning-quote">
+          “{positioningQuote}”
+          <cite>
+            {programBrand.company} — {programBrand.name} | {programBrand.positioning}
+          </cite>
+        </blockquote>
       </section>
 
-      <section className="trusted dark-section">
-        <div className="split-section trusted-inner">
-          <div className="section-media">
-            <img className="feature-image" src={images.investment} alt="Investment analysis table" />
-          </div>
-          <div className="section-content">
-            <p className="eyebrow">Why Choose Us</p>
-            <h2>Trusted by Investors Worldwide</h2>
-            <p>Business Expert Asia is your single-window partner.</p>
-            <ul>
-              {strengths.map((item) => {
-                const Icon = item.icon;
-                return <li key={item.text}><Icon size={18} /> {item.text}</li>;
-              })}
-            </ul>
-            <Link className="primary-btn" to="/contact">Start Your Journey</Link>
+      <section className="admissions-section">
+        <div className="admissions-card">
+          <p className="eyebrow">Admissions Open</p>
+          <h2>{admissionsCta.headline}</h2>
+          <p className="section-copy">
+            Explore our programs and training modules, or book a Child Assessment today.
+          </p>
+          <div className="hero-actions">
+            <Link to="/admissions" className="primary-btn">
+              Admission Details <ArrowRight size={17} />
+            </Link>
+            <Link to="/modules" className="outline-btn">
+              See Training Modules
+            </Link>
           </div>
         </div>
       </section>

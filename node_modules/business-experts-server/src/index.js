@@ -4,6 +4,7 @@ import express from "express";
 import mongoose from "mongoose";
 import { homeContent } from "./content.js";
 import { HomeContent } from "./HomeContent.js";
+import { Inquiry } from "./Inquiry.js";
 
 dotenv.config();
 
@@ -45,6 +46,55 @@ app.get("/api/home", async (_request, response) => {
 
   const content = await HomeContent.findOne().lean();
   response.json(content || homeContent);
+});
+
+const fallbackInquiries = [];
+
+app.post("/api/inquiries", async (request, response) => {
+  const { parentName, phone, email, childName, childAge, program, message } = request.body || {};
+
+  if (!parentName?.trim() || !phone?.trim() || !childName?.trim() || !program?.trim()) {
+    response.status(400).json({
+      ok: false,
+      error: "parentName, phone, childName and program are required."
+    });
+    return;
+  }
+
+  const inquiry = {
+    parentName: parentName.trim(),
+    phone: phone.trim(),
+    email: email?.trim() || "",
+    childName: childName.trim(),
+    childAge: Number(childAge) || undefined,
+    program: program.trim(),
+    message: message?.trim() || ""
+  };
+
+  try {
+    const connected = await mongoReady;
+    if (connected) {
+      await Inquiry.create(inquiry);
+    } else {
+      fallbackInquiries.push({ ...inquiry, createdAt: new Date() });
+      console.log("Inquiry received (stored in memory, MongoDB unavailable):", inquiry);
+    }
+    response.json({ ok: true });
+  } catch (error) {
+    console.error("Failed to save inquiry:", error.message);
+    response.status(500).json({ ok: false, error: "Failed to save inquiry." });
+  }
+});
+
+app.get("/api/inquiries", async (_request, response) => {
+  const connected = await mongoReady;
+  if (!connected) {
+    response.json(fallbackInquiries);
+    return;
+  }
+
+  const inquiries = await Inquiry.find().sort({ createdAt: -1 }).lean();
+  response.json(inquiries);
 });
 
 app.listen(port, () => {
