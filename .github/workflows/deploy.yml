@@ -13,16 +13,43 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy over SSH
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare server (rsync + curl)
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          script_stop: true
           script: |
+            command -v rsync >/dev/null 2>&1 || (apt-get update && apt-get install -y rsync curl)
+            mkdir -p /var/www/Business_Experts
+
+      - name: Sync code to VPS
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avzr --delete --exclude=.git --exclude=node_modules --exclude=backend/uploads --exclude=deploy/certbot --exclude=.env
+          path: ./
+          remote_path: /var/www/Business_Experts/
+          remote_host: ${{ secrets.VPS_HOST }}
+          remote_user: ${{ secrets.VPS_USER }}
+          remote_key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Configure env, build, SSL and launch
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 30m
+          script: |
+            set -e
             cd /var/www/Business_Experts
-            git pull origin main
-            docker compose build
-            docker compose up -d
-            docker image prune -f
+            cat > .env << 'ENVEOF'
+            MONGODB_URI=${{ secrets.MONGODB_URI }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+            ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+            ENVEOF
+            bash deploy/server-deploy.sh

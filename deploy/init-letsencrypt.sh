@@ -10,11 +10,10 @@ staging=0 # set to 1 to test against Let's Encrypt staging (avoids rate limits)
 data_path="./deploy/certbot"
 rsa_key_size=4096
 
-if [ -d "$data_path/conf/live/realtyxpert.online" ]; then
-  read -p "Existing certificate found. Replace it? (y/N) " decision
-  if [ "$decision" != "y" ] && [ "$decision" != "Y" ]; then
-    exit
-  fi
+# Non-interactive: if a real certificate already exists, do nothing.
+if [ -f "$data_path/conf/live/realtyxpert.online/fullchain.pem" ]; then
+  echo "Certificate already exists - nothing to do."
+  exit 0
 fi
 
 echo "### Creating dummy certificate so nginx can start ..."
