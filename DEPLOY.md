@@ -1,4 +1,4 @@
-# Deployment Guide — realtyxpert.online
+﻿# Deployment Guide â€” realtyxpert.online
 
 Architecture (single VPS, Docker Compose):
 
@@ -9,7 +9,7 @@ Architecture (single VPS, Docker Compose):
 | `api.realtyxpert.online` | Backend API |
 
 All three run behind one nginx reverse proxy with free Let's Encrypt SSL (auto-renewed).
-The website and admin call the API via `/api` on their own domain (proxied internally — no CORS issues).
+The website and admin call the API via `/api` on their own domain (proxied internally â€” no CORS issues).
 
 ---
 
@@ -33,10 +33,10 @@ Wait until `ping realtyxpert.online` resolves to your VPS IP before running the 
 curl -fsSL https://get.docker.com | sh
 
 # Clone the repo
-sudo mkdir -p /opt/business-experts
-sudo chown $USER /opt/business-experts
-git clone https://github.com/worknai009/Business_Experts.git /opt/business-experts
-cd /opt/business-experts
+sudo mkdir -p /var/www/Business_Experts
+sudo chown $USER /var/www/Business_Experts
+git clone https://github.com/worknai009/Business_Experts.git /var/www/Business_Experts
+cd /var/www/Business_Experts
 
 # Create the production env file
 cp .env.example .env
@@ -44,8 +44,8 @@ nano .env   # fill in MONGODB_URI, JWT_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD
 ```
 
 Notes for `.env`:
-- `MONGODB_URI` — your MongoDB Atlas connection string. In Atlas → Network Access, allow the VPS IP (or 0.0.0.0/0).
-- `JWT_SECRET` — generate one: `openssl rand -hex 32`
+- `MONGODB_URI` â€” your MongoDB Atlas connection string. In Atlas â†’ Network Access, allow the VPS IP (or 0.0.0.0/0).
+- `JWT_SECRET` â€” generate one: `openssl rand -hex 32`
 
 ## 3. Upload existing media (one time)
 
@@ -53,13 +53,13 @@ Uploaded images (logo etc.) live in `backend/uploads`, which is not in git.
 From your Windows machine:
 
 ```powershell
-scp -r "c:\Worknai Projects\BusinessExperts\backend\uploads\*" user@YOUR_VPS_IP:/opt/business-experts/backend/uploads/
+scp -r "c:\Worknai Projects\BusinessExperts\backend\uploads\*" user@YOUR_VPS_IP:/var/www/Business_Experts/backend/uploads/
 ```
 
 ## 4. First launch + SSL certificate
 
 ```bash
-cd /opt/business-experts
+cd /var/www/Business_Experts
 docker compose build
 docker compose up -d backend frontend admin
 bash deploy/init-letsencrypt.sh    # issues the SSL cert for all 4 domains
@@ -81,7 +81,7 @@ cat ~/.ssh/github_deploy.pub >> ~/.ssh/authorized_keys
 cat ~/.ssh/github_deploy    # copy the PRIVATE key
 ```
 
-Then in GitHub → repo → Settings → Secrets and variables → Actions, add:
+Then in GitHub â†’ repo â†’ Settings â†’ Secrets and variables â†’ Actions, add:
 
 | Secret | Value |
 | --- | --- |
@@ -89,7 +89,7 @@ Then in GitHub → repo → Settings → Secrets and variables → Actions, add:
 | `VPS_USER` | your SSH username (e.g. `root` or `ubuntu`) |
 | `VPS_SSH_KEY` | the private key you copied above |
 
-From then on: `git push` to `main` → site updates automatically in ~2–3 minutes.
+From then on: `git push` to `main` â†’ site updates automatically in ~2â€“3 minutes.
 
 ## 6. Useful commands (on the VPS)
 
@@ -102,11 +102,11 @@ docker compose up -d --build       # manual redeploy
 
 ---
 
-## ⚠️ Security checklist (do these once)
+## âš ï¸ Security checklist (do these once)
 
-1. **Rotate MongoDB Atlas password** — the old `backend/.env` was committed to git history,
-   so the current Atlas password should be considered exposed. In Atlas → Database Access,
+1. **Rotate MongoDB Atlas password** â€” the old `backend/.env` was committed to git history,
+   so the current Atlas password should be considered exposed. In Atlas â†’ Database Access,
    edit the user and set a new password, then update `.env` on the VPS.
-2. Keep the GitHub repo **private** (Settings → General → Danger Zone) if it isn't already.
+2. Keep the GitHub repo **private** (Settings â†’ General â†’ Danger Zone) if it isn't already.
 3. Use a strong `JWT_SECRET` in production (not the dev default).
-4. The admin panel is public at `admin.realtyxpert.online` — use a strong admin password.
+4. The admin panel is public at `admin.realtyxpert.online` â€” use a strong admin password.

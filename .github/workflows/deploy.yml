@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script_stop: true
           script: |
-            cd /opt/business-experts
+            cd /var/www/Business_Experts
             git pull origin main
             docker compose build
             docker compose up -d
