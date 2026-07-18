@@ -35,7 +35,7 @@ curl -fsSL https://get.docker.com | sh
 # Clone the repo
 sudo mkdir -p /opt/business-experts
 sudo chown $USER /opt/business-experts
-git clone https://github.com/punarmilan/Business_Experts.git /opt/business-experts
+git clone https://github.com/worknai009/Business_Experts.git /opt/business-experts
 cd /opt/business-experts
 
 # Create the production env file
