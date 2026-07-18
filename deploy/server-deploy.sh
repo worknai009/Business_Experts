@@ -12,22 +12,10 @@ if ! command -v docker >/dev/null 2>&1; then
   curl -fsSL https://get.docker.com | sh
 fi
 
-echo "### [2/6] Freeing ports 80/443 from other web servers ..."
-# Stop host-level web servers if present
-systemctl stop nginx apache2 2>/dev/null || true
-systemctl disable nginx apache2 2>/dev/null || true
-# Stop any docker container (pre-installed panels like Traefik/Coolify/Dokploy)
-# that publishes port 80 or 443 and is not part of this project
-for c in $(docker ps --format '{{.Names}}' --filter publish=80; docker ps --format '{{.Names}}' --filter publish=443); do
-  case "$c" in
-    business_experts-*|business-experts-*|businessexperts-*) ;;
-    *)
-      echo "Stopping conflicting container: $c"
-      docker update --restart=no "$c" >/dev/null 2>&1 || true
-      docker stop "$c" >/dev/null 2>&1 || true
-      ;;
-  esac
-done
+echo "### [2/6] Port check ..."
+# NOTE: this VPS also hosts other sites behind an existing reverse proxy.
+# We must NOT stop other containers. Conflicting-port handling is done via
+# the integration configured in docker-compose.yml instead.
 
 echo "### [3/6] Building images ..."
 docker compose build
