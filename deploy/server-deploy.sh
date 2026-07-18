@@ -43,9 +43,29 @@ else
   echo "Certificate already exists - skipping bootstrap."
 fi
 
-echo "### [6/6] Starting proxy + certbot renewal ..."
+echo "### [6/7] Starting proxy + certbot renewal ..."
 docker compose up -d
 docker compose exec proxy nginx -s reload || true
 docker image prune -f
 
-echo "### Deploy complete!"
+echo "### [7/7] Verifying deployment ..."
+sleep 8
+docker compose ps
+
+if ! docker compose ps proxy | grep -q "Up"; then
+  echo "!!! PROXY IS NOT RUNNING. Recent proxy logs:"
+  docker compose logs --tail=80 proxy || true
+  echo "!!! Certificate files present:"
+  ls -laR deploy/certbot/conf/live/ 2>/dev/null || echo "(no cert directory)"
+  exit 1
+fi
+
+code=$(curl -sk -o /dev/null -w "%{http_code}" --max-time 15 https://localhost/ -H "Host: realtyxpert.online" || echo 000)
+echo "Local HTTPS check returned: $code"
+if [ "$code" = "000" ]; then
+  echo "!!! HTTPS NOT RESPONDING. Proxy logs:"
+  docker compose logs --tail=80 proxy || true
+  exit 1
+fi
+
+echo "### Deploy complete - site is live!"
