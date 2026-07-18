@@ -25,7 +25,18 @@
       "Bash(node shot.js http://localhost:5173 hero3.png)",
       "Bash(node shot.js http://localhost:5173 hero4.png)",
       "Bash(node shot.js http://localhost:5173 full.png --full)",
-      "Bash(node shot.js http://localhost:5173 full2.png --full)"
+      "Bash(node shot.js http://localhost:5173 full2.png --full)",
+      "PowerShell(Test-NetConnection -ComputerName 127.0.0.1 -Port 27017 -InformationLevel Quiet)",
+      "Bash(curl -s \"http://localhost:5000/api/services\")",
+      "Bash(curl -s -X POST http://localhost:5000/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"admin@businessexperts.asia\",\"password\":\"admin123\"}')",
+      "PowerShell($conns = Get-NetTCPConnection -LocalPort 5000 -State Listen -ErrorAction SilentlyContinue; $pids = $conns | Select-Object -ExpandProperty OwningProcess -Unique; foreach \\($p in $pids\\) { Get-Process -Id $p | Select-Object Id, ProcessName; Stop-Process -Id $p -Force -Confirm:$false }; \"killed: $pids\")",
+      "Bash(node -e ' *)",
+      "Bash(rm -rf src/data src/pages src/components src/App.tsx src/styles.css tsconfig.tsbuildinfo)",
+      "Bash(mkdir -p src/pages src/components src/home src/context public)",
+      "Skill(dataviz)",
+      "Skill(dataviz:*)",
+      "Read(//c/Users/user/AppData/Local/Temp/claude/bundled-skills/2.1.211/c83deef2b86a6b7e9c526de202cf9ee7/dataviz/**)",
+      "Bash(node scripts/validate_palette.js \"#2563EB,#0D9488\" --mode light)"
     ]
   }
 }

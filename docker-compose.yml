@@ -1,0 +1,46 @@
+services:
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - PORT=5000
+    volumes:
+      - ./backend/uploads:/app/uploads
+    expose:
+      - "5000"
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+
+  admin:
+    build: ./admin
+    restart: unless-stopped
+    expose:
+      - "80"
+
+  proxy:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./deploy/certbot/www:/var/www/certbot
+      - ./deploy/certbot/conf:/etc/letsencrypt
+    depends_on:
+      - backend
+      - frontend
+      - admin
+
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ./deploy/certbot/www:/var/www/certbot
+      - ./deploy/certbot/conf:/etc/letsencrypt
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done;'"

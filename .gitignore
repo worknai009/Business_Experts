@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Builds
+dist/
+*.tsbuildinfo
+
+# Environment files (never commit secrets)
+.env
+.env.local
+.env.production
+!.env.example
+
+# Vite cache
+.vite/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Certbot / SSL (server-side only)
+deploy/certbot/
