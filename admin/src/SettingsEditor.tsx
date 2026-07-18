@@ -43,6 +43,7 @@ const FORMS: Record<Tab, SettingField[]> = {
     { path: "brand.name", name: "name", label: "Website name", type: "text", half: true },
     { path: "brand.tagline", name: "tagline", label: "Tagline", type: "text", half: true },
     { path: "brand.logo", name: "logo", label: "Logo", type: "image", hint: "Shown in the navbar and footer; leave empty for a monogram" },
+    { path: "brand.logoHeight", name: "logoHeight", label: "Logo size (px)", type: "number", half: true, hint: "Navbar logo height in pixels — e.g. 48 small, 64 normal, 80 large" },
     { path: "brand.favicon", name: "favicon", label: "Favicon", type: "image" }
   ],
   Hero: [

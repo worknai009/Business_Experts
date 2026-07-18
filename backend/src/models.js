@@ -49,6 +49,7 @@ export const SiteSettings = model(
         name: { type: String, default: "" },
         tagline: { type: String, default: "" },
         logo: { type: String, default: "" },
+        logoHeight: { type: Number, default: 64 },
         favicon: { type: String, default: "" }
       },
       announcement: {

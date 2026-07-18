@@ -1,7 +1,7 @@
 export type Link = { label: string; url: string };
 
 export type Settings = {
-  brand: { name: string; tagline: string; logo: string; favicon: string };
+  brand: { name: string; tagline: string; logo: string; logoHeight?: number; favicon: string };
   announcement: { enabled: boolean; text: string; link: string; linkLabel: string };
   popup: {
     enabled: boolean;

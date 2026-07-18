@@ -67,7 +67,12 @@ export default function Navbar() {
       <div className="container-x flex h-16 items-center justify-between gap-4 md:h-20">
         <Link to="/" className="flex min-w-0 items-center gap-2.5">
           {settings?.brand?.logo ? (
-            <img src={settings.brand.logo} alt={brandName} className="h-16 w-auto md:h-20" />
+            <img
+              src={settings.brand.logo}
+              alt={brandName}
+              className="w-auto max-h-full"
+              style={{ height: `${settings.brand.logoHeight || 64}px` }}
+            />
           ) : (
             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand to-brand-deep font-display text-lg font-bold text-white">
               {brandName.charAt(0)}
