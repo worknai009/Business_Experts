@@ -21,9 +21,11 @@ export const RESOURCES: ResourceConfig[] = [
     imageField: "image",
     fields: [
       { name: "title", label: "Title", type: "text", required: true },
+      { name: "slug", label: "Slug", type: "text", half: true, hint: "Leave empty to auto-generate from the title" },
       { name: "icon", label: "Icon", type: "select", half: true, options: ["trending-up", "headset", "handshake", "heart-handshake", "network", "users", "briefcase", "rocket", "user-check", "box", "calendar", "pen", "image", "mic", "building"] },
       { name: "order", label: "Display order", type: "number", half: true },
-      { name: "description", label: "Description", type: "textarea" },
+      { name: "description", label: "Short description", type: "textarea" },
+      { name: "fullDescription", label: "Full details (shown on the service page)", type: "richtext" },
       { name: "image", label: "Image", type: "image" },
       { name: "features", label: "Highlights", type: "list", hint: "Short bullet points shown as chips" }
     ]

@@ -45,7 +45,9 @@ export type Settings = {
 export type Service = {
   _id: string;
   title: string;
+  slug: string;
   description: string;
+  fullDescription: string;
   image: string;
   icon: string;
   features: string[];

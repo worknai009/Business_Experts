@@ -128,20 +128,21 @@ const base = {
   order: { type: Number, default: 0 }
 };
 
-export const Service = model(
-  "Service",
-  new Schema(
-    {
-      title: { type: String, required: true },
-      description: { type: String, default: "" },
-      image: { type: String, default: "" },
-      icon: { type: String, default: "" },
-      features: [String],
-      ...base
-    },
-    opts
-  )
+const serviceSchema = new Schema(
+  {
+    title: { type: String, required: true },
+    slug: { type: String, unique: true, sparse: true },
+    description: { type: String, default: "" },
+    fullDescription: { type: String, default: "" },
+    image: { type: String, default: "" },
+    icon: { type: String, default: "" },
+    features: [String],
+    ...base
+  },
+  opts
 );
+withSlug(serviceSchema, "title");
+export const Service = model("Service", serviceSchema);
 
 const projectSchema = new Schema(
   {
