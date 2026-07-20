@@ -22,7 +22,7 @@ echo "### [4/4] Verifying ..."
 sleep 8
 docker compose ps
 
-for svc in backend frontend admin; do
+for svc in be-backend be-frontend be-admin; do
   if ! docker compose ps "$svc" | grep -q "Up"; then
     echo "!!! $svc IS NOT RUNNING. Logs:"
     docker compose logs --tail=60 "$svc" || true

@@ -1,5 +1,8 @@
 services:
-  backend:
+  # Service names are prefixed with "be-" so their DNS aliases on the shared
+  # giftme_app network never collide with the other project's "frontend"/
+  # "backend" services (a collision makes Caddy route the wrong site).
+  be-backend:
     build: ./backend
     restart: unless-stopped
     env_file: .env
@@ -8,32 +11,26 @@ services:
     volumes:
       - ./backend/uploads:/app/uploads
     networks:
-      default:
-      edge:
-        aliases:
-          - be-backend
+      - default
+      - edge
 
-  frontend:
+  be-frontend:
     build: ./frontend
     restart: unless-stopped
     networks:
-      default:
-      edge:
-        aliases:
-          - be-frontend
+      - default
+      - edge
 
-  admin:
+  be-admin:
     build: ./admin
     restart: unless-stopped
     networks:
-      default:
-      edge:
-        aliases:
-          - be-admin
+      - default
+      - edge
 
 # Reverse proxy + SSL is handled by the shared Caddy container (giftme-caddy-1)
 # on the external "giftme_app" network. It routes realtyxpert.online domains to
-# the aliases above and manages Let's Encrypt certificates automatically.
+# be-frontend / be-admin / be-backend and manages certificates automatically.
 networks:
   edge:
     external: true
