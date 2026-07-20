@@ -19,7 +19,6 @@ import {
   CourseCard,
   EventCard,
   Img,
-  ProductCard,
   ProjectCard,
   TestimonialCard
 } from "../components/Cards";
@@ -210,32 +209,12 @@ export default function HomePage() {
           />
           <Grid>
             {data.projects.slice(0, 3).map((project, index) => (
-              <Reveal key={project._id} delay={(index % 3) * 0.08}>
+              <Reveal key={project._id} delay={(index % 3) * 0.08} className="h-full">
                 <ProjectCard project={project} />
               </Reveal>
             ))}
           </Grid>
           <ViewAll to="/projects" label="View all projects" />
-        </div>
-      </section>
-    ) : null,
-
-    products: data.products.length ? (
-      <section key="products" className="section-pad bg-mist">
-        <div className="container-x">
-          <SectionHeading
-            eyebrow="Products"
-            title="Tools & resources for your business"
-            subtitle="Practical, ready-to-use products created by our experts to accelerate your growth."
-          />
-          <Grid>
-            {data.products.slice(0, 3).map((product, index) => (
-              <Reveal key={product._id} delay={(index % 3) * 0.08}>
-                <ProductCard product={product} />
-              </Reveal>
-            ))}
-          </Grid>
-          <ViewAll to="/products" label="Browse all products" />
         </div>
       </section>
     ) : null,

@@ -18,7 +18,7 @@ type NavItem = { label: string; to?: string; children?: NavChild[] };
 
 const NAV: NavItem[] = [
   { label: "Overview", to: "/" },
-  { label: "Products", to: "/products" },
+  { label: "Projects", to: "/projects" },
   { label: "Training Programs", to: "/training-programs" },
   {
     label: "Resources",

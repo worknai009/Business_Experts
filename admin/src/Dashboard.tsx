@@ -1,6 +1,5 @@
 import {
   Bell,
-  Box,
   Calendar,
   FileText,
   FolderKanban,
@@ -18,7 +17,6 @@ type Stats = {
     members: number;
     investors: number;
     projects: number;
-    products: number;
     events: number;
     services: number;
     blogs: number;
@@ -164,7 +162,6 @@ export default function Dashboard({ onNavigate }: { onNavigate: (key: string) =>
     { label: "Total Members", value: stats.counts.members, icon: Users, hint: "membership applications" },
     { label: "Total Investors", value: stats.counts.investors, icon: TrendingUp, hint: "investor applications" },
     { label: "Projects", value: stats.counts.projects, icon: FolderKanban },
-    { label: "Products", value: stats.counts.products, icon: Box },
     { label: "Events", value: stats.counts.events, icon: Calendar },
     { label: "Blog Posts", value: stats.counts.blogs, icon: FileText },
     { label: "Testimonials", value: stats.counts.testimonials, icon: MessageSquareQuote },

@@ -1,12 +1,24 @@
 import { ArrowRight, ArrowUpRight, Calendar, Check, Clock, ExternalLink, Github, MapPin, PlayCircle, Quote, Star, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-import { formatDate, type BlogPost, type Course, type EventItem, type Product, type Project, type Testimonial } from "../api";
+import { formatDate, type BlogPost, type Course, type EventItem, type Project, type Testimonial } from "../api";
 
 export function Img({ src, alt, className }: { src?: string; alt: string; className?: string }) {
   if (!src) {
     return <div className={`bg-gradient-to-br from-brand-soft to-slate-100 ${className || ""}`} aria-hidden />;
   }
   return <img src={src} alt={alt} loading="lazy" className={className} />;
+}
+
+// Fits tall/irregular source images (e.g. full-page screenshots) fully inside a fixed frame instead of cropping into them.
+export function FramedImg({ src, alt, className }: { src?: string; alt: string; className?: string }) {
+  if (!src) {
+    return <div className={`bg-gradient-to-br from-brand-soft to-slate-100 ${className || ""}`} aria-hidden />;
+  }
+  return (
+    <div className={`grid place-items-center bg-slate-100 ${className || ""}`}>
+      <img src={src} alt={alt} loading="lazy" className="size-full object-contain" />
+    </div>
+  );
 }
 
 export function Stars({ rating }: { rating: number }) {
@@ -30,12 +42,12 @@ const STATUS_STYLES: Record<string, string> = {
 
 export function ProjectCard({ project }: { project: Project }) {
   return (
-    <Link to={`/projects/${project.slug}`} className="card group flex flex-col">
-      <div className="relative aspect-[3/2] overflow-hidden">
-        <Img
+    <Link to={`/projects/${project.slug}`} className="card group flex h-full flex-col">
+      <div className="relative aspect-[3/2] shrink-0 overflow-hidden">
+        <FramedImg
           src={project.coverImage}
           alt={project.title}
-          className="size-full object-cover transition duration-500 group-hover:scale-105"
+          className="size-full transition duration-500 group-hover:scale-105"
         />
         <span className={`chip absolute left-4 top-4 ${STATUS_STYLES[project.status] || STATUS_STYLES.Planned}`}>
           {project.status}
@@ -43,8 +55,8 @@ export function ProjectCard({ project }: { project: Project }) {
       </div>
       <div className="flex flex-1 flex-col p-6">
         <span className="text-xs font-semibold uppercase tracking-wider text-brand">{project.category}</span>
-        <h3 className="mt-2 text-lg font-bold transition group-hover:text-brand">{project.title}</h3>
-        <p className="mt-2 flex-1 text-sm leading-relaxed">{project.shortDescription}</p>
+        <h3 className="mt-2 line-clamp-1 text-lg font-bold transition group-hover:text-brand">{project.title}</h3>
+        <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed">{project.shortDescription}</p>
         {project.technologies?.length ? (
           <div className="mt-4 flex flex-wrap gap-1.5">
             {project.technologies.slice(0, 4).map((tech) => (
@@ -74,46 +86,6 @@ export function ProjectLinks({ project, className }: { project: Project; classNa
           <Github className="size-4" /> Source Code
         </a>
       ) : null}
-    </div>
-  );
-}
-
-export function ProductCard({ product }: { product: Product }) {
-  const available = product.availability === "Available";
-  return (
-    <div className="card group flex flex-col">
-      <div className="relative aspect-[3/2] overflow-hidden">
-        <Img
-          src={product.thumbnail || product.images?.[0]}
-          alt={product.name}
-          className="size-full object-cover transition duration-500 group-hover:scale-105"
-        />
-        <span className={`chip absolute left-4 top-4 ${available ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-600"}`}>
-          {product.availability}
-        </span>
-      </div>
-      <div className="flex flex-1 flex-col p-6">
-        <span className="text-xs font-semibold uppercase tracking-wider text-brand">{product.category}</span>
-        <h3 className="mt-2 text-lg font-bold">{product.name}</h3>
-        <p className="mt-2 flex-1 text-sm leading-relaxed line-clamp-3">{product.description}</p>
-        {product.features?.length ? (
-          <ul className="mt-4 space-y-1.5">
-            {product.features.slice(0, 3).map((feature) => (
-              <li key={feature} className="flex items-start gap-2 text-sm">
-                <Check className="mt-0.5 size-4 shrink-0 text-emerald-500" /> {feature}
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-          <span className="font-display text-xl font-bold text-ink">
-            {product.priceLabel || (product.price ? `₹${product.price.toLocaleString("en-IN")}` : "Free")}
-          </span>
-          <Link to="/contact" state={{ subject: `Product enquiry: ${product.name}` }} className="btn-ghost !py-2">
-            Enquire <ArrowUpRight className="size-4" />
-          </Link>
-        </div>
-      </div>
     </div>
   );
 }

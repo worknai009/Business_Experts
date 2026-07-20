@@ -14,7 +14,6 @@ import {
   GalleryItem,
   Membership,
   Partner,
-  Product,
   Project,
   Service,
   SiteSettings,
@@ -27,7 +26,6 @@ import { uploadsDir } from "./seedMedia.js";
 const RESOURCES = {
   services: Service,
   projects: Project,
-  products: Product,
   courses: Course,
   events: Event,
   memberships: Membership,
@@ -66,7 +64,6 @@ publicApi.get(
       settings,
       services,
       projects,
-      products,
       courses,
       events,
       memberships,
@@ -79,7 +76,6 @@ publicApi.get(
       getSettings(),
       Service.find(published).sort(sorted).lean(),
       Project.find(published).sort({ isFeatured: -1, ...sorted }).limit(6).lean(),
-      Product.find(published).sort({ isFeatured: -1, ...sorted }).limit(6).lean(),
       Course.find(published).sort({ isFeatured: -1, ...sorted }).limit(6).lean(),
       Event.find({ ...published, date: { $gte: new Date(Date.now() - 86400000) } })
         .sort({ date: 1 })
@@ -96,7 +92,6 @@ publicApi.get(
       settings,
       services,
       projects,
-      products,
       courses,
       events,
       memberships,
@@ -111,7 +106,6 @@ publicApi.get(
 
 publicApi.use("/services", publicRouter(Service));
 publicApi.use("/projects", publicRouter(Project));
-publicApi.use("/products", publicRouter(Product));
 publicApi.use("/courses", publicRouter(Course));
 publicApi.use(
   "/events",
@@ -253,7 +247,6 @@ adminApi.get(
       members,
       investors,
       projects,
-      products,
       events,
       services,
       blogs,
@@ -266,7 +259,6 @@ adminApi.get(
       ContactMessage.countDocuments({ type: "membership" }),
       ContactMessage.countDocuments({ type: "membership", membershipType: /investor/i }),
       Project.countDocuments(),
-      Product.countDocuments(),
       Event.countDocuments(),
       Service.countDocuments(),
       BlogPost.countDocuments(),
@@ -302,7 +294,7 @@ adminApi.get(
     }
 
     response.json({
-      counts: { members, investors, projects, products, events, services, blogs, testimonials, subscribers, newMessages },
+      counts: { members, investors, projects, events, services, blogs, testimonials, subscribers, newMessages },
       recentMessages,
       monthly: months
     });

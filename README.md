@@ -26,7 +26,7 @@ Requires Node 20+ and a local MongoDB on `mongodb://127.0.0.1:27017` (configurab
 
 ## What the admin controls
 
-Hero (text, buttons, image, stats) · Services · Projects (cover, gallery, video, logo, tech, status, URLs, featured, order) · Products (images, price, features, tags, availability, publish) · Events (banner, date, venue, seats, registration, gallery) · Memberships (5 programs) · Testimonials (incl. video reviews) · Gallery (photos/videos, categories) · Blog (SEO fields, tags, publish date) · FAQs · Team · Partners & Sponsors · Contact details (email, phone, WhatsApp, address, map) · Footer (links, newsletter, copyright) · Announcement bar · Popup · Homepage section order & visibility · Theme colors · SEO/meta · Messages & membership applications · Newsletter subscribers.
+Hero (text, buttons, image, stats) · Services · Projects (cover, gallery, video, logo, tech, status, URLs, featured, order) · Events (banner, date, venue, seats, registration, gallery) · Memberships (5 programs) · Testimonials (incl. video reviews) · Gallery (photos/videos, categories) · Blog (SEO fields, tags, publish date) · FAQs · Team · Partners & Sponsors · Contact details (email, phone, WhatsApp, address, map) · Footer (links, newsletter, copyright) · Announcement bar · Popup · Homepage section order & visibility · Theme colors · SEO/meta · Messages & membership applications · Newsletter subscribers.
 
 Changes publish to the website instantly — the frontend reads everything from the API.
 

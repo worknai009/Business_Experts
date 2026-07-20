@@ -57,28 +57,6 @@ export const RESOURCES: ResourceConfig[] = [
     ]
   },
   {
-    key: "products",
-    singular: "Product",
-    plural: "Products",
-    titleField: "name",
-    subtitleField: "category",
-    imageField: "thumbnail",
-    hasFeature: true,
-    fields: [
-      { name: "name", label: "Name", type: "text", required: true, half: true },
-      { name: "category", label: "Category", type: "text", half: true },
-      { name: "price", label: "Price (number)", type: "number", half: true },
-      { name: "priceLabel", label: "Price label", type: "text", half: true, placeholder: "e.g. ₹4,999", hint: "Shown instead of the raw number when set" },
-      { name: "availability", label: "Availability", type: "select", half: true, options: ["Available", "Out of Stock", "Coming Soon"] },
-      { name: "order", label: "Display order", type: "number", half: true },
-      { name: "description", label: "Description", type: "textarea" },
-      { name: "thumbnail", label: "Thumbnail", type: "image" },
-      { name: "images", label: "Gallery images", type: "images" },
-      { name: "features", label: "Features", type: "list" },
-      { name: "tags", label: "Tags", type: "list" }
-    ]
-  },
-  {
     key: "courses",
     singular: "Training program",
     plural: "Training Programs",

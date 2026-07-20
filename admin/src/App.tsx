@@ -33,7 +33,6 @@ import Subscribers from "./Subscribers";
 const RESOURCE_ICONS: Record<string, typeof Box> = {
   services: Sparkles,
   projects: FolderKanban,
-  products: Box,
   courses: GraduationCap,
   events: Calendar,
   memberships: CreditCard,

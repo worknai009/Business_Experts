@@ -168,27 +168,6 @@ const projectSchema = new Schema(
 withSlug(projectSchema, "title");
 export const Project = model("Project", projectSchema);
 
-const productSchema = new Schema(
-  {
-    name: { type: String, required: true },
-    slug: { type: String, unique: true, sparse: true },
-    category: { type: String, default: "" },
-    price: { type: Number, default: 0 },
-    priceLabel: { type: String, default: "" },
-    description: { type: String, default: "" },
-    thumbnail: { type: String, default: "" },
-    images: [String],
-    features: [String],
-    tags: [String],
-    availability: { type: String, enum: ["Available", "Out of Stock", "Coming Soon"], default: "Available" },
-    isFeatured: { type: Boolean, default: false },
-    ...base
-  },
-  opts
-);
-withSlug(productSchema, "name");
-export const Product = model("Product", productSchema);
-
 const courseSchema = new Schema(
   {
     title: { type: String, required: true },

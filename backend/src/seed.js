@@ -6,7 +6,6 @@ import {
   GalleryItem,
   Membership,
   Partner,
-  Product,
   Project,
   Service,
   SiteSettings,
@@ -55,7 +54,6 @@ const defaultSettings = {
   sections: [
     { key: "services", label: "Services", enabled: true },
     { key: "projects", label: "Projects", enabled: true },
-    { key: "products", label: "Products", enabled: true },
     { key: "events", label: "Events", enabled: true },
     { key: "memberships", label: "Memberships", enabled: true },
     { key: "testimonials", label: "Testimonials", enabled: true },
@@ -293,50 +291,6 @@ const projects = [
   }
 ];
 
-const products = [
-  {
-    name: "Business Starter Toolkit",
-    category: "Digital Toolkit",
-    price: 4999,
-    priceLabel: "₹4,999",
-    description:
-      "A complete digital toolkit for new businesses — incorporation checklists, financial model templates, brand guidelines starter, and 50+ legal and HR document templates.",
-    thumbnail: media("product-toolkit.svg"),
-    images: [media("product-toolkit.svg")],
-    features: ["50+ ready templates", "Financial model included", "Lifetime updates"],
-    tags: ["templates", "startup", "legal"],
-    isFeatured: true,
-    order: 1
-  },
-  {
-    name: "Market Research Report 2026",
-    category: "Research",
-    price: 12999,
-    priceLabel: "₹12,999",
-    description:
-      "An in-depth 120-page report covering startup funding trends, sector opportunities and consumer shifts across Indian and Southeast Asian markets in 2026.",
-    thumbnail: media("product-report.svg"),
-    images: [media("product-report.svg")],
-    features: ["120 pages of analysis", "12 sector deep-dives", "Quarterly data refresh"],
-    tags: ["research", "investment", "market"],
-    isFeatured: true,
-    order: 2
-  },
-  {
-    name: "Pitch Deck Pro Template",
-    category: "Digital Toolkit",
-    price: 2499,
-    priceLabel: "₹2,499",
-    description:
-      "The exact 14-slide structure used by our funded startups, with investor-reviewed storytelling guidance, financial slide formulas and design system included.",
-    thumbnail: media("product-pitch.svg"),
-    images: [media("product-pitch.svg")],
-    features: ["14 investor-tested slides", "Storytelling guide", "Figma + PowerPoint files"],
-    tags: ["pitch", "fundraising", "startup"],
-    order: 3
-  }
-];
-
 const events = [
   {
     title: "Startup Investor Summit 2026",
@@ -521,7 +475,6 @@ export async function seedDatabase() {
     [Service, services],
     [Membership, memberships],
     [Project, projects],
-    [Product, products],
     [Event, events],
     [Testimonial, testimonials],
     [BlogPost, blogs],

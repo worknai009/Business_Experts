@@ -72,22 +72,6 @@ export type Project = {
   isFeatured: boolean;
 };
 
-export type Product = {
-  _id: string;
-  name: string;
-  slug: string;
-  category: string;
-  price: number;
-  priceLabel: string;
-  description: string;
-  thumbnail: string;
-  images: string[];
-  features: string[];
-  tags: string[];
-  availability: string;
-  isFeatured: boolean;
-};
-
 export type Course = {
   _id: string;
   title: string;
@@ -186,7 +170,6 @@ export type HomeData = {
   settings: Settings;
   services: Service[];
   projects: Project[];
-  products: Product[];
   courses: Course[];
   events: EventItem[];
   memberships: Membership[];
