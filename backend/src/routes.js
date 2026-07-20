@@ -303,9 +303,23 @@ adminApi.get(
 
 /* ----------------------------------- Uploads ---------------------------------- */
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 8 * 1024 * 1024 } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
-adminApi.post("/upload", upload.single("file"), async (request, response) => {
+adminApi.post("/upload", (request, response, next) => {
+  upload.single("file")(request, response, (error) => {
+    if (error instanceof multer.MulterError) {
+      const message =
+        error.code === "LIMIT_FILE_SIZE" ? "File is too large (max 20MB)." : error.message;
+      response.status(400).json({ ok: false, error: message });
+      return;
+    }
+    if (error) {
+      next(error);
+      return;
+    }
+    next();
+  });
+}, async (request, response) => {
   if (!request.file) {
     response.status(400).json({ ok: false, error: "No file uploaded (field name: file)." });
     return;
