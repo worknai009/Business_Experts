@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import {
   formatDate,
   toEmbedUrl,
+  toVideoThumb,
+  toWatchUrl,
   type BlogPost,
   type Course,
   type EventItem,
@@ -12,6 +14,29 @@ import {
   type SuccessStory,
   type Testimonial
 } from "../api";
+
+// Fixed-size clickable video preview — opens the video on its own site (YouTube/Vimeo)
+// in a new tab instead of embedding it inline, so a disabled-embedding video (or any
+// other iframe quirk) can never blow up the layout.
+export function VideoThumb({ url, title, className }: { url: string; title: string; className?: string }) {
+  const thumb = toVideoThumb(url);
+  return (
+    <a
+      href={toWatchUrl(url)}
+      target="_blank"
+      rel="noreferrer"
+      className={`group relative block overflow-hidden bg-ink ${className || ""}`}
+      aria-label={`Watch ${title} on YouTube`}
+    >
+      {thumb ? (
+        <img src={thumb} alt={title} loading="lazy" className="size-full object-cover opacity-80 transition group-hover:opacity-100" />
+      ) : null}
+      <span className="absolute inset-0 grid place-items-center bg-ink/30 transition group-hover:bg-ink/40">
+        <PlayCircle className="size-16 text-white drop-shadow" />
+      </span>
+    </a>
+  );
+}
 
 export function VideoModal({ url, title, onClose }: { url: string; title: string; onClose: () => void }) {
   return (

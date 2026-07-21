@@ -219,23 +219,46 @@ export function formatDate(value?: string, options?: Intl.DateTimeFormatOptions)
   });
 }
 
+function getYoutubeId(url: string): string | null {
+  const patterns = [
+    /^https?:\/\/youtu\.be\/([\w-]+)/,
+    /^https?:\/\/(?:www\.)?youtube\.com\/watch\?(?:.*&)?v=([\w-]+)/,
+    /^https?:\/\/(?:www\.)?youtube\.com\/shorts\/([\w-]+)/,
+    /^https?:\/\/(?:www\.)?youtube\.com\/embed\/([\w-]+)/
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
 // Accepts any YouTube/Vimeo URL a user might paste (share link, watch link, or
 // already an embed URL) and normalizes it into something safe to put in an iframe.
 export function toEmbedUrl(url?: string): string {
   if (!url) return "";
   const trimmed = url.trim();
 
-  const youtuBe = trimmed.match(/^https?:\/\/youtu\.be\/([\w-]+)/);
-  if (youtuBe) return `https://www.youtube.com/embed/${youtuBe[1]}`;
-
-  const youtubeWatch = trimmed.match(/^https?:\/\/(?:www\.)?youtube\.com\/watch\?(?:.*&)?v=([\w-]+)/);
-  if (youtubeWatch) return `https://www.youtube.com/embed/${youtubeWatch[1]}`;
-
-  const youtubeShorts = trimmed.match(/^https?:\/\/(?:www\.)?youtube\.com\/shorts\/([\w-]+)/);
-  if (youtubeShorts) return `https://www.youtube.com/embed/${youtubeShorts[1]}`;
+  const youtubeId = getYoutubeId(trimmed);
+  if (youtubeId) return `https://www.youtube.com/embed/${youtubeId}`;
 
   const vimeo = trimmed.match(/^https?:\/\/(?:www\.)?vimeo\.com\/(\d+)/);
   if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`;
 
   return trimmed;
+}
+
+// Best-effort thumbnail for a video link — only YouTube supports a predictable thumbnail URL.
+export function toVideoThumb(url?: string): string {
+  if (!url) return "";
+  const youtubeId = getYoutubeId(url.trim());
+  return youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : "";
+}
+
+// The canonical page to open a video link on its own site (for "Watch on YouTube"-style links).
+export function toWatchUrl(url?: string): string {
+  if (!url) return "";
+  const trimmed = url.trim();
+  const youtubeId = getYoutubeId(trimmed);
+  return youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : trimmed;
 }

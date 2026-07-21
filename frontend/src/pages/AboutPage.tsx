@@ -1,7 +1,7 @@
 import { Linkedin, Target, Telescope } from "lucide-react";
 import { useEffect, useState } from "react";
-import { apiGet, toEmbedUrl, type Partner, type TeamMember } from "../api";
-import { Img } from "../components/Cards";
+import { apiGet, type Partner, type TeamMember } from "../api";
+import { Img, VideoThumb } from "../components/Cards";
 import PageHero from "../components/PageHero";
 import Reveal from "../components/Reveal";
 import SectionHeading from "../components/SectionHeading";
@@ -64,15 +64,11 @@ export default function AboutPage() {
           <div className="container-x">
             <SectionHeading eyebrow="Our Story" title={story.title || "Our Story"} subtitle={story.description} />
             <Reveal className="mx-auto max-w-4xl">
-              <div className="aspect-video overflow-hidden rounded-2xl shadow-lift">
-                <iframe
-                  src={toEmbedUrl(story.video)}
-                  title={story.title || "Our Story"}
-                  className="size-full"
-                  allowFullScreen
-                  loading="lazy"
-                />
-              </div>
+              <VideoThumb
+                url={story.video}
+                title={story.title || "Our Story"}
+                className="aspect-video w-full rounded-2xl shadow-lift"
+              />
             </Reveal>
           </div>
         </section>

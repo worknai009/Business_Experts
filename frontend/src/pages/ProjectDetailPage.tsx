@@ -1,8 +1,8 @@
 import { ArrowLeft, CalendarCheck2, CheckCircle2 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
-import { apiGet, apiPost, formatDate, toEmbedUrl, type Project } from "../api";
-import { Img, ProjectLinks } from "../components/Cards";
+import { apiGet, apiPost, formatDate, type Project } from "../api";
+import { Img, ProjectLinks, VideoThumb } from "../components/Cards";
 import Reveal from "../components/Reveal";
 import RichText from "../components/RichText";
 import { useSeo } from "../context/SiteContext";
@@ -162,15 +162,7 @@ export default function ProjectDetailPage() {
         <div className="container-x max-w-4xl">
           {project.video ? (
             <Reveal>
-              <div className="aspect-video overflow-hidden rounded-2xl shadow-lg">
-                <iframe
-                  src={toEmbedUrl(project.video)}
-                  title={`${project.title} video`}
-                  className="size-full"
-                  allowFullScreen
-                  loading="lazy"
-                />
-              </div>
+              <VideoThumb url={project.video} title={`${project.title} video`} className="aspect-video w-full rounded-2xl shadow-lg" />
             </Reveal>
           ) : null}
 
