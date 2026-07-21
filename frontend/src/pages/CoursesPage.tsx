@@ -1,17 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
-import { apiGet, type Course } from "../api";
-import { CourseCard } from "../components/Cards";
+import { apiGet, type Course, type SuccessStory } from "../api";
+import { CourseCard, SuccessStoryCard } from "../components/Cards";
 import PageHero from "../components/PageHero";
 import Reveal from "../components/Reveal";
+import SectionHeading from "../components/SectionHeading";
 import { useSeo } from "../context/SiteContext";
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [stories, setStories] = useState<SuccessStory[]>([]);
   const [category, setCategory] = useState("All");
   useSeo("Training Programs", "Practical business training programs led by experienced founders, investors and experts.");
 
   useEffect(() => {
     apiGet<Course[]>("/courses").then(setCourses).catch(() => {});
+    apiGet<SuccessStory[]>("/success-stories").then(setStories).catch(() => {});
   }, []);
 
   const categories = useMemo(
@@ -55,6 +58,25 @@ export default function CoursesPage() {
           {!visible.length ? <p className="text-center text-slate-500">No training programs published yet.</p> : null}
         </div>
       </section>
+
+      {stories.length ? (
+        <section className="section-pad bg-mist">
+          <div className="container-x">
+            <SectionHeading
+              eyebrow="Success Stories"
+              title="Where our trainees are today"
+              subtitle="Real outcomes from founders and professionals who went through our training programs."
+            />
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 md:gap-8">
+              {stories.map((story, index) => (
+                <Reveal key={story._id} delay={(index % 3) * 0.08}>
+                  <SuccessStoryCard story={story} />
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }

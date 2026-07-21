@@ -82,6 +82,12 @@ export const SiteSettings = model(
           enabled: { type: Boolean, default: true }
         }
       ],
+      businessStory: {
+        enabled: { type: Boolean, default: false },
+        title: { type: String, default: "" },
+        description: { type: String, default: "" },
+        video: { type: String, default: "" }
+      },
       contact: {
         email: { type: String, default: "" },
         phone: { type: String, default: "" },
@@ -184,6 +190,7 @@ const courseSchema = new Schema(
     syllabus: [String],
     highlights: [String],
     enrollLink: { type: String, default: "" },
+    video: { type: String, default: "" },
     startDate: { type: Date },
     isFeatured: { type: Boolean, default: false },
     ...base
@@ -242,6 +249,22 @@ export const Testimonial = model(
       rating: { type: Number, min: 1, max: 5, default: 5 },
       review: { type: String, default: "" },
       videoUrl: { type: String, default: "" },
+      ...base
+    },
+    opts
+  )
+);
+
+export const SuccessStory = model(
+  "SuccessStory",
+  new Schema(
+    {
+      name: { type: String, required: true },
+      trainingProgram: { type: String, default: "" },
+      achievement: { type: String, default: "" },
+      story: { type: String, default: "" },
+      image: { type: String, default: "" },
+      video: { type: String, default: "" },
       ...base
     },
     opts

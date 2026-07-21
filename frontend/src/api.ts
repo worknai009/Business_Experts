@@ -21,6 +21,7 @@ export type Settings = {
     stats: { value: string; label: string }[];
   };
   sections: { key: string; label: string; enabled: boolean }[];
+  businessStory: { enabled: boolean; title: string; description: string; video: string };
   contact: {
     email: string;
     phone: string;
@@ -88,6 +89,7 @@ export type Course = {
   syllabus: string[];
   highlights: string[];
   enrollLink: string;
+  video: string;
   startDate?: string;
   isFeatured: boolean;
 };
@@ -127,6 +129,16 @@ export type Testimonial = {
   rating: number;
   review: string;
   videoUrl: string;
+};
+
+export type SuccessStory = {
+  _id: string;
+  name: string;
+  trainingProgram: string;
+  achievement: string;
+  story: string;
+  image: string;
+  video: string;
 };
 
 export type GalleryItem = {
@@ -205,4 +217,25 @@ export function formatDate(value?: string, options?: Intl.DateTimeFormatOptions)
     year: "numeric",
     ...options
   });
+}
+
+// Accepts any YouTube/Vimeo URL a user might paste (share link, watch link, or
+// already an embed URL) and normalizes it into something safe to put in an iframe.
+export function toEmbedUrl(url?: string): string {
+  if (!url) return "";
+  const trimmed = url.trim();
+
+  const youtuBe = trimmed.match(/^https?:\/\/youtu\.be\/([\w-]+)/);
+  if (youtuBe) return `https://www.youtube.com/embed/${youtuBe[1]}`;
+
+  const youtubeWatch = trimmed.match(/^https?:\/\/(?:www\.)?youtube\.com\/watch\?(?:.*&)?v=([\w-]+)/);
+  if (youtubeWatch) return `https://www.youtube.com/embed/${youtubeWatch[1]}`;
+
+  const youtubeShorts = trimmed.match(/^https?:\/\/(?:www\.)?youtube\.com\/shorts\/([\w-]+)/);
+  if (youtubeShorts) return `https://www.youtube.com/embed/${youtubeShorts[1]}`;
+
+  const vimeo = trimmed.match(/^https?:\/\/(?:www\.)?vimeo\.com\/(\d+)/);
+  if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`;
+
+  return trimmed;
 }

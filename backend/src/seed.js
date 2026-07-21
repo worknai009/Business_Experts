@@ -63,6 +63,12 @@ const defaultSettings = {
     { key: "faq", label: "FAQ", enabled: true },
     { key: "cta", label: "Contact CTA", enabled: true }
   ],
+  businessStory: {
+    enabled: false,
+    title: "Our Story",
+    description: "How Business Experts came together to build this ecosystem.",
+    video: ""
+  },
   contact: {
     email: "hello@businessexperts.asia",
     phone: "+91 98765 43210",

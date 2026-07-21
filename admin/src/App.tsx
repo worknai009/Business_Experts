@@ -1,4 +1,5 @@
 import {
+  Award,
   Box,
   Calendar,
   CreditCard,
@@ -37,6 +38,7 @@ const RESOURCE_ICONS: Record<string, typeof Box> = {
   events: Calendar,
   memberships: CreditCard,
   testimonials: MessageSquareQuote,
+  successStories: Award,
   gallery: Image,
   blogs: FileText,
   faqs: HelpCircle,

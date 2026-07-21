@@ -10,6 +10,7 @@ const TABS = [
   "Hero",
   "Announcement",
   "Popup",
+  "Business Story",
   "Homepage Sections",
   "Contact",
   "Social",
@@ -69,6 +70,12 @@ const FORMS: Record<Tab, SettingField[]> = {
     { path: "popup.image", name: "image", label: "Image", type: "image" },
     { path: "popup.buttonLabel", name: "buttonLabel", label: "Button label", type: "text", half: true },
     { path: "popup.buttonLink", name: "buttonLink", label: "Button link", type: "text", half: true }
+  ],
+  "Business Story": [
+    { path: "businessStory.enabled", name: "enabled", label: "Business Story", type: "checkbox", hint: "Show the story video on the About Us page" },
+    { path: "businessStory.title", name: "title", label: "Title", type: "text", half: true },
+    { path: "businessStory.video", name: "video", label: "Video URL", type: "text", half: true, placeholder: "Paste a YouTube or Vimeo link", hint: "Any YouTube/Vimeo link works — share, watch, or embed URL" },
+    { path: "businessStory.description", name: "description", label: "Description", type: "textarea" }
   ],
   "Homepage Sections": [],
   Contact: [

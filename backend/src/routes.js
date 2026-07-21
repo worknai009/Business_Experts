@@ -18,6 +18,7 @@ import {
   Service,
   SiteSettings,
   Subscriber,
+  SuccessStory,
   TeamMember,
   Testimonial
 } from "./models.js";
@@ -30,6 +31,7 @@ const RESOURCES = {
   events: Event,
   memberships: Membership,
   testimonials: Testimonial,
+  successStories: SuccessStory,
   gallery: GalleryItem,
   blogs: BlogPost,
   faqs: Faq,
@@ -117,6 +119,7 @@ publicApi.use(
 );
 publicApi.use("/memberships", publicRouter(Membership));
 publicApi.use("/testimonials", publicRouter(Testimonial));
+publicApi.use("/success-stories", publicRouter(SuccessStory));
 publicApi.use("/gallery", publicRouter(GalleryItem));
 publicApi.use("/blogs", publicRouter(BlogPost, { sort: { publishDate: -1 } }));
 publicApi.use("/faqs", publicRouter(Faq));

@@ -1,6 +1,49 @@
-import { ArrowRight, ArrowUpRight, Calendar, Check, Clock, ExternalLink, Github, MapPin, PlayCircle, Quote, Star, Users } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, ArrowUpRight, Calendar, Check, Clock, ExternalLink, Github, MapPin, PlayCircle, Quote, Star, Users, X } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { formatDate, type BlogPost, type Course, type EventItem, type Project, type Testimonial } from "../api";
+import {
+  formatDate,
+  toEmbedUrl,
+  type BlogPost,
+  type Course,
+  type EventItem,
+  type Project,
+  type SuccessStory,
+  type Testimonial
+} from "../api";
+
+export function VideoModal({ url, title, onClose }: { url: string; title: string; onClose: () => void }) {
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[60] grid place-items-center bg-ink/85 p-4 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={onClose}
+          className="absolute right-5 top-5 grid size-10 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20"
+        >
+          <X className="size-5" />
+        </button>
+        <motion.div
+          initial={{ scale: 0.92 }}
+          animate={{ scale: 1 }}
+          exit={{ scale: 0.95 }}
+          className="aspect-video w-full max-w-4xl overflow-hidden rounded-2xl"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <iframe src={toEmbedUrl(url)} title={title} className="size-full" allowFullScreen loading="lazy" />
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
 
 export function Img({ src, alt, className }: { src?: string; alt: string; className?: string }) {
   if (!src) {
@@ -93,6 +136,7 @@ export function ProjectLinks({ project, className }: { project: Project; classNa
 export function CourseCard({ course }: { course: Course }) {
   const enrollTo = course.enrollLink || "/contact";
   const external = Boolean(course.enrollLink);
+  const [showVideo, setShowVideo] = useState(false);
   return (
     <div className="card group flex flex-col">
       <div className="relative aspect-[3/2] overflow-hidden">
@@ -104,6 +148,16 @@ export function CourseCard({ course }: { course: Course }) {
         <span className="chip absolute left-4 top-4 bg-brand text-white">{course.level}</span>
         {course.mode ? (
           <span className="chip absolute right-4 top-4 bg-white/90 text-slate-700 backdrop-blur">{course.mode}</span>
+        ) : null}
+        {course.video ? (
+          <button
+            type="button"
+            onClick={() => setShowVideo(true)}
+            className="absolute inset-0 grid place-items-center bg-ink/20 opacity-0 transition group-hover:opacity-100"
+            aria-label={`Watch intro video for ${course.title}`}
+          >
+            <PlayCircle className="size-14 text-white drop-shadow" />
+          </button>
         ) : null}
       </div>
       <div className="flex flex-1 flex-col p-6">
@@ -133,21 +187,31 @@ export function CourseCard({ course }: { course: Course }) {
             ))}
           </ul>
         ) : null}
-        <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
           <span className="font-display text-xl font-bold text-ink">
             {course.priceLabel || (course.price ? `₹${course.price.toLocaleString("en-IN")}` : "Free")}
           </span>
-          {external ? (
-            <a href={enrollTo} target="_blank" rel="noreferrer" className="btn-ghost !py-2">
-              Enroll Now <ArrowUpRight className="size-4" />
-            </a>
-          ) : (
-            <Link to="/contact" state={{ subject: `Training program enquiry: ${course.title}` }} className="btn-ghost !py-2">
-              Enroll Now <ArrowUpRight className="size-4" />
-            </Link>
-          )}
+          <div className="flex items-center gap-3">
+            {course.video ? (
+              <button type="button" onClick={() => setShowVideo(true)} className="btn-ghost !py-2">
+                <PlayCircle className="size-4" /> Watch Intro
+              </button>
+            ) : null}
+            {external ? (
+              <a href={enrollTo} target="_blank" rel="noreferrer" className="btn-ghost !py-2">
+                Enroll Now <ArrowUpRight className="size-4" />
+              </a>
+            ) : (
+              <Link to="/contact" state={{ subject: `Training program enquiry: ${course.title}` }} className="btn-ghost !py-2">
+                Enroll Now <ArrowUpRight className="size-4" />
+              </Link>
+            )}
+          </div>
         </div>
       </div>
+      {showVideo && course.video ? (
+        <VideoModal url={course.video} title={`${course.title} intro`} onClose={() => setShowVideo(false)} />
+      ) : null}
     </div>
   );
 }
@@ -222,6 +286,53 @@ export function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+export function SuccessStoryCard({ story }: { story: SuccessStory }) {
+  const [showVideo, setShowVideo] = useState(false);
+  return (
+    <div className="card group flex h-full flex-col">
+      <div className="relative aspect-[3/2] shrink-0 overflow-hidden">
+        <Img
+          src={story.image}
+          alt={story.name}
+          className="size-full object-cover transition duration-500 group-hover:scale-105"
+        />
+        {story.video ? (
+          <button
+            type="button"
+            onClick={() => setShowVideo(true)}
+            className="absolute inset-0 grid place-items-center bg-ink/20 opacity-0 transition group-hover:opacity-100"
+            aria-label={`Watch ${story.name}'s success story`}
+          >
+            <PlayCircle className="size-14 text-white drop-shadow" />
+          </button>
+        ) : null}
+      </div>
+      <div className="flex flex-1 flex-col p-6">
+        {story.trainingProgram ? (
+          <span className="text-xs font-semibold uppercase tracking-wider text-brand">{story.trainingProgram}</span>
+        ) : null}
+        <h3 className="mt-2 text-lg font-bold">{story.name}</h3>
+        {story.achievement ? (
+          <p className="mt-1 text-sm font-semibold text-emerald-600">{story.achievement}</p>
+        ) : null}
+        <p className="mt-2 flex-1 text-sm leading-relaxed line-clamp-4">{story.story}</p>
+        {story.video ? (
+          <button
+            type="button"
+            onClick={() => setShowVideo(true)}
+            className="btn-ghost mt-4 self-start !py-2"
+          >
+            <PlayCircle className="size-4" /> Watch Success Story
+          </button>
+        ) : null}
+      </div>
+      {showVideo && story.video ? (
+        <VideoModal url={story.video} title={`${story.name}'s success story`} onClose={() => setShowVideo(false)} />
+      ) : null}
     </div>
   );
 }

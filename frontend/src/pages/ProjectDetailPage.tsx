@@ -1,11 +1,98 @@
-import { ArrowLeft, CalendarCheck2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, CalendarCheck2, CheckCircle2 } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
-import { apiGet, formatDate, type Project } from "../api";
+import { apiGet, apiPost, formatDate, toEmbedUrl, type Project } from "../api";
 import { Img, ProjectLinks } from "../components/Cards";
 import Reveal from "../components/Reveal";
 import RichText from "../components/RichText";
 import { useSeo } from "../context/SiteContext";
+
+const INQUIRY_ROLES = ["Investor", "Partner", "Other"] as const;
+type InquiryRole = (typeof INQUIRY_ROLES)[number];
+const ROLE_DESCRIPTOR: Record<InquiryRole, string> = {
+  Investor: "an investor",
+  Partner: "a partner",
+  Other: "an interested party"
+};
+
+function ProjectInquiryForm({ project }: { project: Project }) {
+  const [role, setRole] = useState<InquiryRole>("Investor");
+  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const [error, setError] = useState("");
+
+  function update(field: keyof typeof form) {
+    return (event: { target: { value: string } }) => setForm((value) => ({ ...value, [field]: event.target.value }));
+  }
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setStatus("sending");
+    try {
+      await apiPost("/contact", {
+        ...form,
+        type: "contact",
+        company: role,
+        subject: `Project inquiry: ${project.title} — ${role}`
+      });
+      setStatus("done");
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Something went wrong.");
+      setStatus("error");
+    }
+  }
+
+  if (status === "done") {
+    return (
+      <div className="card p-8 text-center">
+        <CheckCircle2 className="mx-auto size-12 text-emerald-500" />
+        <h2 className="mt-3 text-lg font-bold">Inquiry sent</h2>
+        <p className="mt-1.5 text-sm">Thanks for your interest in {project.title} — our team will get back to you shortly.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card p-8">
+      <h2 className="text-lg font-bold">Interested in {project.title}?</h2>
+      <p className="mt-1 text-sm text-slate-500">Send an inquiry as an investor, partner, or something else.</p>
+
+      <div className="mt-5 flex flex-wrap gap-2">
+        {INQUIRY_ROLES.map((option) => (
+          <button
+            key={option}
+            type="button"
+            onClick={() => setRole(option)}
+            className={`chip !px-4 !py-2 transition ${
+              role === option ? "bg-brand text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+
+      <form onSubmit={submit} className="mt-5 space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <input required placeholder="Full name *" className="input" value={form.name} onChange={update("name")} />
+          <input type="email" required placeholder="Email *" className="input" value={form.email} onChange={update("email")} />
+        </div>
+        <input placeholder="Phone" className="input" value={form.phone} onChange={update("phone")} />
+        <textarea
+          rows={4}
+          placeholder={`Tell us about your interest as ${ROLE_DESCRIPTOR[role]}…`}
+          className="input resize-none"
+          value={form.message}
+          onChange={update("message")}
+        />
+        {status === "error" ? <p className="text-sm text-rose-600">{error}</p> : null}
+        <button type="submit" disabled={status === "sending"} className="btn-primary disabled:opacity-60">
+          {status === "sending" ? "Sending…" : `Send ${role} Inquiry`}
+        </button>
+      </form>
+    </div>
+  );
+}
 
 export default function ProjectDetailPage() {
   const { slug } = useParams();
@@ -77,7 +164,7 @@ export default function ProjectDetailPage() {
             <Reveal>
               <div className="aspect-video overflow-hidden rounded-2xl shadow-lg">
                 <iframe
-                  src={project.video}
+                  src={toEmbedUrl(project.video)}
                   title={`${project.title} video`}
                   className="size-full"
                   allowFullScreen
@@ -112,6 +199,10 @@ export default function ProjectDetailPage() {
               </div>
             </Reveal>
           ) : null}
+
+          <Reveal className="mt-10">
+            <ProjectInquiryForm project={project} />
+          </Reveal>
         </div>
       </div>
     </article>

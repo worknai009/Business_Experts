@@ -80,7 +80,8 @@ export const RESOURCES: ResourceConfig[] = [
       { name: "image", label: "Cover image", type: "image" },
       { name: "syllabus", label: "Syllabus / modules", type: "list", hint: "One module or topic per line" },
       { name: "highlights", label: "Highlights", type: "list", hint: "e.g. Certificate included, Live mentorship" },
-      { name: "enrollLink", label: "Enroll link", type: "text", placeholder: "External form / payment link (optional)" }
+      { name: "enrollLink", label: "Enroll link", type: "text", placeholder: "External form / payment link (optional)" },
+      { name: "video", label: "Intro video URL", type: "text", placeholder: "Paste a YouTube or Vimeo link", hint: "Any YouTube/Vimeo link works — share, watch, or embed URL" }
     ]
   },
   {
@@ -137,6 +138,23 @@ export const RESOURCES: ResourceConfig[] = [
       { name: "image", label: "Photo", type: "image" },
       { name: "review", label: "Review", type: "textarea" },
       { name: "videoUrl", label: "Video review URL", type: "text" },
+      { name: "order", label: "Display order", type: "number", half: true }
+    ]
+  },
+  {
+    key: "successStories",
+    singular: "Success story",
+    plural: "Success Stories",
+    titleField: "name",
+    subtitleField: "trainingProgram",
+    imageField: "image",
+    fields: [
+      { name: "name", label: "Name", type: "text", required: true, half: true },
+      { name: "trainingProgram", label: "Training program attended", type: "text", half: true, placeholder: "e.g. Startup Fundamentals" },
+      { name: "achievement", label: "Achievement summary", type: "text", placeholder: "e.g. Raised ₹50L in seed funding within 6 months" },
+      { name: "image", label: "Photo", type: "image" },
+      { name: "video", label: "Success story video URL", type: "text", placeholder: "Paste a YouTube or Vimeo link", hint: "Any YouTube/Vimeo link works — share, watch, or embed URL" },
+      { name: "story", label: "Story", type: "textarea" },
       { name: "order", label: "Display order", type: "number", half: true }
     ]
   },

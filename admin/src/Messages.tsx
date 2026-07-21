@@ -23,6 +23,7 @@ const STATUS_COLORS: Record<string, string> = {
   contacted: "bg-amber-50 text-amber-600",
   closed: "bg-slate-100 text-slate-500"
 };
+const INQUIRY_ROLES = ["Investor", "Partner", "Other"];
 
 export default function Messages() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -102,6 +103,11 @@ export default function Messages() {
                         {message.membershipType || "Membership"}
                       </span>
                     ) : null}
+                    {message.company && INQUIRY_ROLES.includes(message.company) ? (
+                      <span className="rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-bold uppercase text-sky-600">
+                        {message.company} Inquiry
+                      </span>
+                    ) : null}
                   </div>
                   <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
                     {message.email ? (
@@ -114,7 +120,7 @@ export default function Messages() {
                         <Phone className="size-3.5" /> {message.phone}
                       </a>
                     ) : null}
-                    {message.company ? <span>{message.company}</span> : null}
+                    {message.company && !INQUIRY_ROLES.includes(message.company) ? <span>{message.company}</span> : null}
                     <span>{new Date(message.createdAt).toLocaleString("en-IN")}</span>
                   </div>
                 </div>

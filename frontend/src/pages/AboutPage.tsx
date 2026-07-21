@@ -1,6 +1,6 @@
 import { Linkedin, Target, Telescope } from "lucide-react";
 import { useEffect, useState } from "react";
-import { apiGet, type Partner, type TeamMember } from "../api";
+import { apiGet, toEmbedUrl, type Partner, type TeamMember } from "../api";
 import { Img } from "../components/Cards";
 import PageHero from "../components/PageHero";
 import Reveal from "../components/Reveal";
@@ -17,6 +17,8 @@ export default function AboutPage() {
     apiGet<TeamMember[]>("/team").then(setTeam).catch(() => {});
     apiGet<Partner[]>("/partners").then(setPartners).catch(() => {});
   }, []);
+
+  const story = settings?.businessStory;
 
   return (
     <>
@@ -56,6 +58,25 @@ export default function AboutPage() {
           </Reveal>
         </div>
       </section>
+
+      {story?.enabled && story.video ? (
+        <section className="section-pad bg-mist">
+          <div className="container-x">
+            <SectionHeading eyebrow="Our Story" title={story.title || "Our Story"} subtitle={story.description} />
+            <Reveal className="mx-auto max-w-4xl">
+              <div className="aspect-video overflow-hidden rounded-2xl shadow-lift">
+                <iframe
+                  src={toEmbedUrl(story.video)}
+                  title={story.title || "Our Story"}
+                  className="size-full"
+                  allowFullScreen
+                  loading="lazy"
+                />
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      ) : null}
 
       {team.length ? (
         <section className="section-pad bg-mist">
