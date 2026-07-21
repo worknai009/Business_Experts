@@ -118,9 +118,12 @@ export default function AboutPage() {
             />
             <div className="flex flex-wrap items-center justify-center gap-x-14 gap-y-8">
               {partners.map((partner) => (
-                <a key={partner._id} href={partner.url || "#"} target="_blank" rel="noreferrer" className="text-center">
+                <a key={partner._id} href={partner.url || "#"} target="_blank" rel="noreferrer" className="max-w-[10rem] text-center">
                   <img src={partner.logo} alt={partner.name} loading="lazy" className="mx-auto h-12 w-auto" />
                   <span className="mt-2 block text-xs text-slate-400">{partner.type}</span>
+                  {partner.address ? (
+                    <span className="mt-1 block text-[11px] leading-snug text-slate-400">{partner.address}</span>
+                  ) : null}
                 </a>
               ))}
             </div>

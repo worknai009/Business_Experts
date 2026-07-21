@@ -235,6 +235,7 @@ export const RESOURCES: ResourceConfig[] = [
       { name: "type", label: "Type", type: "select", half: true, options: ["Partner", "Sponsor"] },
       { name: "logo", label: "Logo", type: "image" },
       { name: "url", label: "Website URL", type: "text", half: true },
+      { name: "address", label: "Address", type: "textarea" },
       { name: "order", label: "Display order", type: "number", half: true }
     ]
   }

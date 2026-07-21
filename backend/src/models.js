@@ -341,6 +341,7 @@ export const Partner = model(
       name: { type: String, required: true },
       logo: { type: String, default: "" },
       url: { type: String, default: "" },
+      address: { type: String, default: "" },
       type: { type: String, enum: ["Partner", "Sponsor"], default: "Partner" },
       ...base
     },

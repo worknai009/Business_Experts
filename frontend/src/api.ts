@@ -176,7 +176,7 @@ export type TeamMember = {
   linkedin: string;
 };
 
-export type Partner = { _id: string; name: string; logo: string; url: string; type: string };
+export type Partner = { _id: string; name: string; logo: string; url: string; address: string; type: string };
 
 export type HomeData = {
   settings: Settings;
