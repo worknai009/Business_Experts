@@ -63,7 +63,7 @@ export default function AboutPage() {
         <section className="section-pad bg-mist">
           <div className="container-x">
             <SectionHeading eyebrow="Our Story" title={story.title || "Our Story"} subtitle={story.description} />
-            <Reveal className="mx-auto max-w-4xl">
+            <Reveal className="mx-auto max-w-[717px]">
               <VideoThumb
                 url={story.video}
                 title={story.title || "Our Story"}

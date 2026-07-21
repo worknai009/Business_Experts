@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   formatDate,
+  isDirectVideoUrl,
   toEmbedUrl,
   toVideoThumb,
   toWatchUrl,
@@ -15,10 +16,23 @@ import {
   type Testimonial
 } from "../api";
 
-// Fixed-size clickable video preview — opens the video on its own site (YouTube/Vimeo)
+// Fixed-size video preview. Direct video files (e.g. Cloudinary .mp4) play natively
+// in place; YouTube/Vimeo links show a thumbnail that opens the video on its own site
 // in a new tab instead of embedding it inline, so a disabled-embedding video (or any
 // other iframe quirk) can never blow up the layout.
 export function VideoThumb({ url, title, className }: { url: string; title: string; className?: string }) {
+  if (isDirectVideoUrl(url)) {
+    return (
+      <video
+        src={url}
+        controls
+        preload="metadata"
+        className={`bg-ink object-cover ${className || ""}`}
+        aria-label={title}
+      />
+    );
+  }
+
   const thumb = toVideoThumb(url);
   return (
     <a

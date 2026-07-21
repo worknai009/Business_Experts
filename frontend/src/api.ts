@@ -255,6 +255,13 @@ export function toVideoThumb(url?: string): string {
   return youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : "";
 }
 
+// True for a direct video file URL (e.g. Cloudinary/S3-hosted .mp4) as opposed to a
+// YouTube/Vimeo page link — these can be played with a native <video> element.
+export function isDirectVideoUrl(url?: string): boolean {
+  if (!url) return false;
+  return /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(url.trim());
+}
+
 // The canonical page to open a video link on its own site (for "Watch on YouTube"-style links).
 export function toWatchUrl(url?: string): string {
   if (!url) return "";

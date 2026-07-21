@@ -131,9 +131,9 @@ export default function ProjectDetailPage() {
         <Img
           src={project.coverImage}
           alt={project.title}
-          className="absolute inset-0 size-full object-cover opacity-70"
+          className="absolute inset-0 size-full object-cover"
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-ink/10" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/20" aria-hidden />
 
         <div className="container-x absolute inset-x-0 bottom-0 pb-10 pt-16 text-white">
           <Link to="/projects" className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/80 hover:text-white">
@@ -160,13 +160,7 @@ export default function ProjectDetailPage() {
 
       <div className="section-pad">
         <div className="container-x max-w-4xl">
-          {project.video ? (
-            <Reveal>
-              <VideoThumb url={project.video} title={`${project.title} video`} className="aspect-video w-full rounded-2xl shadow-lg" />
-            </Reveal>
-          ) : null}
-
-          <Reveal className={project.video ? "mt-10" : ""}>
+          <Reveal>
             <RichText text={project.fullDescription || project.shortDescription} />
           </Reveal>
 
@@ -178,6 +172,16 @@ export default function ProjectDetailPage() {
                   <span key={tech} className="chip bg-brand-soft text-brand">{tech}</span>
                 ))}
               </div>
+            </Reveal>
+          ) : null}
+
+          {project.video ? (
+            <Reveal className="mt-10 flex justify-center">
+              <VideoThumb
+                url={project.video}
+                title={`${project.title} video`}
+                className="aspect-video w-full max-w-[717px] rounded-2xl shadow-lg"
+              />
             </Reveal>
           ) : null}
 
