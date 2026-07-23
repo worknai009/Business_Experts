@@ -6,6 +6,7 @@ import { Img, ProjectLinks, VideoThumb } from "../components/Cards";
 import Reveal from "../components/Reveal";
 import RichText from "../components/RichText";
 import { useSeo } from "../context/SiteContext";
+import { useOtpGate } from "../context/useOtpGate";
 
 const INQUIRY_ROLES = ["Investor", "Partner", "Other"] as const;
 type InquiryRole = (typeof INQUIRY_ROLES)[number];
@@ -20,6 +21,7 @@ function ProjectInquiryForm({ project }: { project: Project }) {
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [error, setError] = useState("");
+  const { verify, otpModal } = useOtpGate();
 
   function update(field: keyof typeof form) {
     return (event: { target: { value: string } }) => setForm((value) => ({ ...value, [field]: event.target.value }));
@@ -28,12 +30,19 @@ function ProjectInquiryForm({ project }: { project: Project }) {
   async function submit(event: FormEvent) {
     event.preventDefault();
     setStatus("sending");
+    setError("");
+    const otpToken = await verify(form.email.trim());
+    if (!otpToken) {
+      setStatus("idle");
+      return;
+    }
     try {
       await apiPost("/contact", {
         ...form,
         type: "contact",
         company: role,
-        subject: `Project inquiry: ${project.title} — ${role}`
+        subject: `Project inquiry: ${project.title} — ${role}`,
+        otpToken
       });
       setStatus("done");
     } catch (submitError) {
@@ -90,6 +99,7 @@ function ProjectInquiryForm({ project }: { project: Project }) {
           {status === "sending" ? "Sending…" : `Send ${role} Inquiry`}
         </button>
       </form>
+      {otpModal}
     </div>
   );
 }

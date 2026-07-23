@@ -5,6 +5,7 @@ import { apiPost } from "../api";
 import PageHero from "../components/PageHero";
 import Reveal from "../components/Reveal";
 import { useSeo, useSite } from "../context/SiteContext";
+import { useOtpGate } from "../context/useOtpGate";
 
 export default function ContactPage() {
   const settings = useSite();
@@ -13,15 +14,27 @@ export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", subject: presetSubject, message: "" });
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [error, setError] = useState("");
+  const { verify, otpModal } = useOtpGate();
   useSeo("Contact", "Talk to our team about memberships, investments and business support.");
 
   const contact = settings?.contact;
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (!form.email.trim()) {
+      setError("An email is required to verify your inquiry.");
+      setStatus("error");
+      return;
+    }
     setStatus("sending");
+    setError("");
+    const otpToken = await verify(form.email.trim());
+    if (!otpToken) {
+      setStatus("idle");
+      return;
+    }
     try {
-      await apiPost("/contact", { ...form, type: "contact" });
+      await apiPost("/contact", { ...form, type: "contact", otpToken });
       setStatus("done");
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Something went wrong.");
@@ -127,6 +140,7 @@ export default function ContactPage() {
           </Reveal>
         </div>
       </section>
+      {otpModal}
     </>
   );
 }

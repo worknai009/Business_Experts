@@ -384,3 +384,17 @@ export const Subscriber = model(
     opts
   )
 );
+
+export const OtpCode = model(
+  "OtpCode",
+  new Schema(
+    {
+      email: { type: String, required: true, lowercase: true, trim: true },
+      codeHash: { type: String, required: true },
+      expiresAt: { type: Date, required: true },
+      attempts: { type: Number, default: 0 },
+      consumedAt: { type: Date }
+    },
+    opts
+  )
+);

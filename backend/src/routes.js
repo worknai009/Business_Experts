@@ -22,6 +22,7 @@ import {
   TeamMember,
   Testimonial
 } from "./models.js";
+import { otpRouter, requireOtpToken } from "./otp.js";
 import { uploadsDir } from "./seedMedia.js";
 
 const RESOURCES = {
@@ -48,6 +49,7 @@ async function getSettings() {
 export const publicApi = Router();
 
 publicApi.use("/auth", authRouter);
+publicApi.use("/otp", otpRouter);
 
 publicApi.get(
   "/settings",
@@ -128,6 +130,7 @@ publicApi.use("/partners", publicRouter(Partner));
 
 publicApi.post(
   "/contact",
+  requireOtpToken,
   handle(async (request, response) => {
     const { name, email, phone, subject, message, type, membershipType, company } = request.body || {};
     if (!name?.trim() || (!email?.trim() && !phone?.trim())) {
@@ -150,6 +153,7 @@ publicApi.post(
 
 publicApi.post(
   "/newsletter",
+  requireOtpToken,
   handle(async (request, response) => {
     const email = String(request.body?.email || "").trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {

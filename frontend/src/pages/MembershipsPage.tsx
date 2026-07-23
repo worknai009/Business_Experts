@@ -7,6 +7,7 @@ import PageHero from "../components/PageHero";
 import Reveal from "../components/Reveal";
 import SectionHeading from "../components/SectionHeading";
 import { useSeo } from "../context/SiteContext";
+import { useOtpGate } from "../context/useOtpGate";
 
 const STEPS = [
   { icon: ClipboardList, title: "Submit your inquiry", text: "Tell us who you are and which membership you want." },
@@ -29,6 +30,7 @@ export default function MembershipsPage() {
   });
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [error, setError] = useState("");
+  const { verify, otpModal } = useOtpGate();
   useSeo("Become a Member", "Send a membership inquiry and our team will contact you.");
 
   useEffect(() => {
@@ -53,11 +55,17 @@ export default function MembershipsPage() {
     event.preventDefault();
     setStatus("sending");
     setError("");
+    const otpToken = await verify(form.email.trim());
+    if (!otpToken) {
+      setStatus("idle");
+      return;
+    }
     try {
       await apiPost("/contact", {
         ...form,
         type: "membership",
-        subject: `Membership inquiry: ${form.membershipType}`
+        subject: `Membership inquiry: ${form.membershipType}`,
+        otpToken
       });
       setStatus("done");
     } catch (submitError) {
@@ -160,6 +168,7 @@ export default function MembershipsPage() {
           </div>
         </section>
       ) : null}
+      {otpModal}
     </>
   );
 }

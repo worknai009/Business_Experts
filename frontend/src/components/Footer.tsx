@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { apiPost } from "../api";
 import { useSite } from "../context/SiteContext";
+import { useOtpGate } from "../context/useOtpGate";
 
 const SOCIAL_ICONS = { facebook: Facebook, instagram: Instagram, linkedin: Linkedin, twitter: Twitter, youtube: Youtube };
 
@@ -10,12 +11,18 @@ export default function Footer() {
   const settings = useSite();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const { verify, otpModal } = useOtpGate();
 
   async function subscribe(event: FormEvent) {
     event.preventDefault();
     setStatus("sending");
+    const otpToken = await verify(email.trim());
+    if (!otpToken) {
+      setStatus("idle");
+      return;
+    }
     try {
-      await apiPost("/newsletter", { email });
+      await apiPost("/newsletter", { email, otpToken });
       setStatus("done");
       setEmail("");
     } catch {
@@ -143,6 +150,7 @@ export default function Footer() {
           <span>{settings?.brand?.tagline}</span>
         </div>
       </div>
+      {otpModal}
     </footer>
   );
 }

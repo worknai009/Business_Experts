@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import AnnouncementBar from "./components/AnnouncementBar";
+import ChatWidget from "./components/ChatWidget";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import Popup from "./components/Popup";
@@ -72,6 +73,7 @@ export default function App() {
       </main>
       <Footer />
       <Popup />
+      <ChatWidget />
     </SiteProvider>
   );
 }
