@@ -48,6 +48,13 @@ cat ~/.ssh/github_deploy    # copy this PRIVATE key for the secret below
 | `JWT_SECRET` | long random string (`openssl rand -hex 32`) |
 | `ADMIN_EMAIL` | admin panel login email |
 | `ADMIN_PASSWORD` | admin panel login password |
+| `GMAIL_USER` | Gmail address used to send OTP verification emails |
+| `GMAIL_APP_PASSWORD` | Gmail App Password (Google Account → Security → App Passwords) |
+| `EMAIL_BRAND_NAME` | Name shown as the sender, e.g. `Business Experts` |
+
+Without the `GMAIL_*` secrets, OTP codes are generated but never emailed — the
+verify step will always fail for real users. These are required for the OTP
+verification feature (contact/membership forms + chatbot) to work in production.
 
 ---
 
