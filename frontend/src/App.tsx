@@ -13,6 +13,7 @@ const ServiceDetailPage = lazy(() => import("./pages/ServiceDetailPage"));
 const ProjectsPage = lazy(() => import("./pages/ProjectsPage"));
 const ProjectDetailPage = lazy(() => import("./pages/ProjectDetailPage"));
 const CoursesPage = lazy(() => import("./pages/CoursesPage"));
+const CourseDetailPage = lazy(() => import("./pages/CourseDetailPage"));
 const EventsPage = lazy(() => import("./pages/EventsPage"));
 const MembershipsPage = lazy(() => import("./pages/MembershipsPage"));
 const BlogPage = lazy(() => import("./pages/BlogPage"));
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/projects/:slug" element={<ProjectDetailPage />} />
             <Route path="/products" element={<Navigate to="/projects" replace />} />
             <Route path="/training-programs" element={<CoursesPage />} />
+            <Route path="/training-programs/:slug" element={<CourseDetailPage />} />
             <Route path="/courses" element={<Navigate to="/training-programs" replace />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/memberships" element={<MembershipsPage />} />

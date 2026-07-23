@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Calendar, Check, Clock, ExternalLink, Github, MapPin, PlayCircle, Quote, Star, Users, X } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   formatDate,
   isDirectVideoUrl,
@@ -176,8 +176,19 @@ export function CourseCard({ course }: { course: Course }) {
   const enrollTo = course.enrollLink || "/contact";
   const external = Boolean(course.enrollLink);
   const [showVideo, setShowVideo] = useState(false);
+  const navigate = useNavigate();
+  const detailUrl = `/training-programs/${course.slug}`;
+
   return (
-    <div className="card group flex flex-col">
+    <div
+      role="link"
+      tabIndex={0}
+      onClick={() => navigate(detailUrl)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") navigate(detailUrl);
+      }}
+      className="card group flex cursor-pointer flex-col"
+    >
       <div className="relative aspect-[3/2] overflow-hidden">
         <Img
           src={course.image}
@@ -191,7 +202,10 @@ export function CourseCard({ course }: { course: Course }) {
         {course.video ? (
           <button
             type="button"
-            onClick={() => setShowVideo(true)}
+            onClick={(event) => {
+              event.stopPropagation();
+              setShowVideo(true);
+            }}
             className="absolute inset-0 grid place-items-center bg-ink/20 opacity-0 transition group-hover:opacity-100"
             aria-label={`Watch intro video for ${course.title}`}
           >
@@ -228,20 +242,38 @@ export function CourseCard({ course }: { course: Course }) {
         ) : null}
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
           <span className="font-display text-xl font-bold text-ink">
-            {course.priceLabel || (course.price ? `₹${course.price.toLocaleString("en-IN")}` : "Free")}
+            {course.priceLabel || course.priceClass || "Free"}
           </span>
           <div className="flex items-center gap-3">
             {course.video ? (
-              <button type="button" onClick={() => setShowVideo(true)} className="btn-ghost !py-2">
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setShowVideo(true);
+                }}
+                className="btn-ghost !py-2"
+              >
                 <PlayCircle className="size-4" /> Watch Intro
               </button>
             ) : null}
             {external ? (
-              <a href={enrollTo} target="_blank" rel="noreferrer" className="btn-ghost !py-2">
+              <a
+                href={enrollTo}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(event) => event.stopPropagation()}
+                className="btn-ghost !py-2"
+              >
                 Enroll Now <ArrowUpRight className="size-4" />
               </a>
             ) : (
-              <Link to="/contact" state={{ subject: `Training program enquiry: ${course.title}` }} className="btn-ghost !py-2">
+              <Link
+                to="/contact"
+                state={{ subject: `Training program enquiry: ${course.title}` }}
+                onClick={(event) => event.stopPropagation()}
+                className="btn-ghost !py-2"
+              >
                 Enroll Now <ArrowUpRight className="size-4" />
               </Link>
             )}

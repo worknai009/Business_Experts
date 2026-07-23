@@ -2,7 +2,7 @@
 
 **Fully automatic pipeline:** `git push` to `main` → GitHub Actions does EVERYTHING on the VPS:
 installs Docker (first run), syncs code, writes `.env` from GitHub Secrets, builds containers,
-issues the SSL certificate (first run), and starts/reloads all services. You never need to SSH in.
+starts/reloads all services. The shared Caddy container manages SSL and routes traffic.
 
 | Domain | Serves |
 | --- | --- |
@@ -65,6 +65,14 @@ Then check:
 - https://realtyxpert.online
 - https://admin.realtyxpert.online
 - https://api.realtyxpert.online/api/health
+- https://realtyxpert.online/api/home should return JSON, not the frontend `index.html`.
+
+## Shared Caddy config
+
+This project uses the shared `giftme-caddy-1` container and the external
+`giftme_app` Docker network. The Caddy site blocks for these domains live outside
+this repo on the VPS. Use [deploy/Caddyfile.business-experts](deploy/Caddyfile.business-experts)
+as the source of truth when updating the shared Caddyfile.
 
 ## Optional: copy existing uploaded media (logo etc.) once
 
@@ -82,9 +90,8 @@ scp -r "c:\Worknai Projects\BusinessExperts\backend\uploads\*" root@YOUR_VPS_IP:
 2. **Configure** — `.env` is regenerated from GitHub Secrets on every deploy
    (to change the DB password etc., just update the secret and re-run).
 3. **Run** — `deploy/server-deploy.sh` installs Docker if missing, builds images,
-   bootstraps the Let's Encrypt certificate on first run (`deploy/init-letsencrypt.sh`),
-   and starts everything via `docker-compose.yml`. Certificate auto-renews via the
-   `certbot` container.
+   starts everything via `docker-compose.yml`, and verifies both the public page
+   and the public `/api/home` route.
 
 ## Troubleshooting (SSH only needed if something breaks)
 
@@ -92,7 +99,6 @@ scp -r "c:\Worknai Projects\BusinessExperts\backend\uploads\*" root@YOUR_VPS_IP:
 cd /var/www/Business_Experts
 docker compose ps                  # container status
 docker compose logs -f backend     # backend logs
-docker compose logs proxy          # nginx logs
 bash deploy/server-deploy.sh       # manual full deploy
 ```
 

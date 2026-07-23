@@ -190,3 +190,265 @@ h4 {
 .input {
   @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink shadow-soft outline-none transition placeholder:text-slate-400 focus:border-brand focus:ring-4 focus:ring-brand/10;
 }
+
+/* ---------------------- Training Program Detail Layout --------------------- */
+
+.program-detail-page {
+  background: #ffffff;
+}
+
+.program-shell {
+  width: min(100% - 48px, 1180px);
+  margin-inline: auto;
+}
+
+.program-breadcrumb {
+  position: relative;
+  z-index: 2;
+  padding-block: 16px;
+}
+
+.program-hero-wrap {
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+}
+
+.program-hero {
+  position: relative;
+  min-height: 410px;
+  overflow: hidden;
+  background: #071426;
+  padding: 48px;
+  color: #ffffff;
+}
+
+.program-hero .program-breadcrumb {
+  padding-block: 0;
+  margin-bottom: 28px;
+}
+
+.program-hero .program-breadcrumb nav {
+  color: rgb(255 255 255 / 0.65);
+}
+
+.program-hero .program-breadcrumb nav a:hover {
+  color: #ffffff;
+}
+
+.program-hero .program-breadcrumb nav span.text-ink {
+  color: #ffffff;
+}
+
+.program-hero-media {
+  position: absolute;
+  inset-block: 0;
+  right: 0;
+  width: 58%;
+}
+
+.program-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.62;
+}
+
+.program-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, #071426 0%, rgb(7 20 38 / 0.96) 42%, rgb(7 20 38 / 0.58) 67%, rgb(7 20 38 / 0.18) 100%),
+    linear-gradient(0deg, rgb(7 20 38 / 0.22), rgb(7 20 38 / 0.22));
+}
+
+.program-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+}
+
+.program-detail-page .program-hero h1 {
+  margin-top: 22px;
+  max-width: 540px;
+  font-size: 42px;
+  line-height: 1.16;
+  letter-spacing: 0;
+}
+
+.program-detail-page .program-hero p {
+  max-width: 540px;
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.program-main-wrap {
+  margin-top: 14px;
+  padding-bottom: 36px;
+}
+
+.program-main-card {
+  overflow: hidden;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgb(11 18 32 / 0.04),
+    0 18px 48px -32px rgb(11 18 32 / 0.18);
+}
+
+.program-card-body {
+  padding: 34px;
+}
+
+.program-content-grid {
+  display: grid;
+  gap: 44px;
+  grid-template-columns: minmax(0, 1fr) 350px;
+}
+
+.program-detail-page h2 {
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.program-detail-page .program-card-body p,
+.program-detail-page .program-card-body li {
+  font-size: 14px;
+}
+
+.program-curriculum-block {
+  margin-top: 32px !important;
+  max-width: none;
+}
+
+.program-curriculum-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px !important;
+}
+
+.program-detail-page .program-curriculum-title {
+  font-size: 20px !important;
+  line-height: 1.2;
+  font-weight: 800;
+  color: #0b1220;
+}
+
+.program-curriculum-expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px !important;
+  font-weight: 700;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.program-curriculum-list {
+  display: grid;
+  gap: 10px !important;
+}
+
+.program-curriculum-row-inner {
+  display: flex;
+  align-items: center;
+  min-height: 56px !important;
+  gap: 14px !important;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  background: #f7f9fb;
+  padding: 0 18px !important;
+}
+
+.program-curriculum-number {
+  display: grid;
+  width: 28px !important;
+  height: 28px !important;
+  flex: 0 0 28px !important;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-brand);
+  color: #ffffff;
+  font-size: 13px !important;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.program-curriculum-name {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: #0b1220;
+  font-size: 16px !important;
+  font-weight: 800;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.program-curriculum-lessons {
+  color: #64748b;
+  font-size: 14px !important;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.program-curriculum-chevron {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px !important;
+  color: #475569;
+}
+
+.program-cta-wrap {
+  padding-bottom: 44px;
+}
+
+@media (max-width: 1024px) {
+  .program-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .program-hero-media {
+    width: 100%;
+  }
+
+  .program-hero-overlay {
+    background: linear-gradient(90deg, #071426 0%, rgb(7 20 38 / 0.88) 62%, rgb(7 20 38 / 0.58) 100%);
+  }
+}
+
+@media (max-width: 640px) {
+  .program-shell {
+    width: min(100% - 28px, 1180px);
+  }
+
+  .program-hero {
+    min-height: 360px;
+    padding: 28px 22px;
+  }
+
+  .program-detail-page .program-hero h1 {
+    font-size: 30px;
+  }
+
+  .program-detail-page .program-hero p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .program-card-body {
+    padding: 22px;
+  }
+
+  .program-curriculum-row-inner {
+    min-height: 46px;
+    padding: 0 12px;
+  }
+
+  .program-curriculum-lessons {
+    display: none;
+  }
+}

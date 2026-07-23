@@ -71,17 +71,22 @@ export const RESOURCES: ResourceConfig[] = [
       { name: "level", label: "Level", type: "select", half: true, options: ["Beginner", "Intermediate", "Advanced", "All Levels"] },
       { name: "mode", label: "Mode", type: "select", half: true, options: ["Online", "Offline", "Hybrid"] },
       { name: "duration", label: "Duration", type: "text", half: true, placeholder: "e.g. 6 weeks" },
-      { name: "price", label: "Price (number)", type: "number", half: true },
-      { name: "priceLabel", label: "Price label", type: "text", half: true, placeholder: "e.g. ₹14,999", hint: "Shown instead of the raw number when set" },
+      { name: "priceClass", label: "Price class", type: "select", half: true, options: ["Basic", "Standard", "Premium"] },
+      { name: "priceLabel", label: "Price label", type: "text", half: true, placeholder: "e.g. ₹14,999" },
       { name: "startDate", label: "Next batch date", type: "date", half: true },
       { name: "order", label: "Display order", type: "number", half: true },
       { name: "shortDescription", label: "Short description", type: "textarea" },
       { name: "description", label: "Full description", type: "richtext" },
       { name: "image", label: "Cover image", type: "image" },
+      { name: "heroImage", label: "Hero image", type: "image", hint: "Shown on the training program detail hero. Leave empty to use the cover image." },
       { name: "syllabus", label: "Syllabus / modules", type: "list", hint: "One module or topic per line" },
       { name: "highlights", label: "Highlights", type: "list", hint: "e.g. Certificate included, Live mentorship" },
       { name: "enrollLink", label: "Enroll link", type: "text", placeholder: "External form / payment link (optional)" },
-      { name: "video", label: "Intro video URL", type: "text", placeholder: "Paste a YouTube or Vimeo link", hint: "Any YouTube/Vimeo link works — share, watch, or embed URL" }
+      { name: "video", label: "Intro video URL", type: "text", placeholder: "Paste a YouTube or Vimeo link", hint: "Any YouTube/Vimeo link works — share, watch, or embed URL" },
+      { name: "instructorName", label: "Instructor name", type: "text", half: true, placeholder: "e.g. Business Experts Team" },
+      { name: "instructorRole", label: "Instructor role", type: "text", half: true, placeholder: "e.g. Entrepreneur | Business Consultant" },
+      { name: "instructorImage", label: "Instructor photo", type: "image" },
+      { name: "instructorBio", label: "Instructor bio", type: "textarea", placeholder: "Shown on the training program detail page" }
     ]
   },
   {

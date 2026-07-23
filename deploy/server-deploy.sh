@@ -31,9 +31,15 @@ for svc in be-backend be-frontend be-admin; do
 done
 
 code=$(curl -sk -o /dev/null -w "%{http_code}" --max-time 15 https://realtyxpert.online/ || echo 000)
+api_code=$(curl -sk -o /dev/null -w "%{http_code}" --max-time 15 https://realtyxpert.online/api/home || echo 000)
+api_type=$(curl -sk -I --max-time 15 https://realtyxpert.online/api/home | tr -d '\r' | awk 'BEGIN{IGNORECASE=1} /^content-type:/ {print $2; exit}')
 echo "Public HTTPS check returned: $code"
+echo "Public API check returned: $api_code ($api_type)"
 if [ "$code" != "200" ]; then
   echo "WARNING: site not reachable via Caddy yet (Caddyfile may need the realtyxpert.online entries)."
+fi
+if [ "$api_code" != "200" ] || echo "$api_type" | grep -qi "text/html"; then
+  echo "WARNING: /api/home is not returning backend data. Check deploy/Caddyfile.business-experts."
 fi
 
 echo "### Deploy complete!"

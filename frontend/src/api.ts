@@ -81,16 +81,21 @@ export type Course = {
   shortDescription: string;
   description: string;
   image: string;
+  heroImage: string;
   duration: string;
   mode: string;
   level: string;
-  price: number;
+  priceClass: string;
   priceLabel: string;
   syllabus: string[];
   highlights: string[];
   enrollLink: string;
   video: string;
   startDate?: string;
+  instructorName: string;
+  instructorRole: string;
+  instructorBio: string;
+  instructorImage: string;
   isFeatured: boolean;
 };
 

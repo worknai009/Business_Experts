@@ -1,15 +1,71 @@
+import { ArrowRight, Calendar, Clock, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { apiGet, type Course, type SuccessStory } from "../api";
-import { CourseCard, SuccessStoryCard } from "../components/Cards";
-import PageHero from "../components/PageHero";
+import { Link } from "react-router-dom";
+import { apiGet, formatDate, type Course, type SuccessStory } from "../api";
+import { Img, SuccessStoryCard } from "../components/Cards";
 import Reveal from "../components/Reveal";
 import SectionHeading from "../components/SectionHeading";
 import { useSeo } from "../context/SiteContext";
+
+function CourseListItem({ course }: { course: Course }) {
+  return (
+    <Link
+      to={`/training-programs/${course.slug}`}
+      className="group grid grid-cols-[132px_1fr] overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-soft transition hover:-translate-y-1 hover:border-brand/30 hover:shadow-lift sm:grid-cols-[180px_1fr] lg:grid-cols-[210px_1fr]"
+    >
+      <div className="h-full min-h-36 overflow-hidden bg-mist">
+        <Img
+          src={course.image}
+          alt={course.title}
+          className="size-full object-cover transition duration-500 group-hover:scale-105"
+        />
+      </div>
+      <div className="flex min-w-0 flex-col p-3 sm:p-4">
+        <div className="flex flex-wrap gap-2">
+          <span className="chip bg-brand-soft text-brand">{course.category || "Business Training"}</span>
+          <span className="chip bg-slate-100 text-slate-600">{course.level}</span>
+          {course.mode ? <span className="chip bg-slate-100 text-slate-600">{course.mode}</span> : null}
+        </div>
+        <h2 className="mt-2 text-base font-bold leading-tight transition group-hover:text-brand sm:text-lg">
+          {course.title}
+        </h2>
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-500 sm:text-sm">
+          {course.duration ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="size-4 text-brand" /> {course.duration}
+            </span>
+          ) : null}
+          {course.startDate ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Calendar className="size-4 text-brand" /> Next batch: {formatDate(course.startDate)}
+            </span>
+          ) : null}
+        </div>
+        <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-slate-600 sm:text-sm">
+          {course.shortDescription}
+        </p>
+        {course.highlights?.length ? (
+          <div className="mt-3 hidden flex-wrap gap-2 sm:flex">
+            {course.highlights.slice(0, 3).map((highlight) => (
+              <span key={highlight} className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-500">
+                {highlight}
+              </span>
+            ))}
+          </div>
+        ) : null}
+        <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-brand sm:text-sm">
+          Read More <ArrowRight className="size-4 transition group-hover:translate-x-1" />
+        </span>
+      </div>
+    </Link>
+  );
+}
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [stories, setStories] = useState<SuccessStory[]>([]);
   const [category, setCategory] = useState("All");
+  const [query, setQuery] = useState("");
   useSeo("Training Programs", "Practical business training programs led by experienced founders, investors and experts.");
 
   useEffect(() => {
@@ -21,19 +77,55 @@ export default function CoursesPage() {
     () => ["All", ...Array.from(new Set(courses.map((course) => course.category).filter(Boolean)))],
     [courses]
   );
-  const visible = category === "All" ? courses : courses.filter((course) => course.category === category);
+  const visible = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return courses.filter((course) => {
+      const inCategory = category === "All" || course.category === category;
+      if (!inCategory) return false;
+      if (!normalized) return true;
+      return [course.title, course.category, course.shortDescription, course.description, ...(course.highlights || [])]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(normalized);
+    });
+  }, [category, courses, query]);
 
   return (
     <>
-      <PageHero
-        eyebrow="Training Programs"
-        title="Business training that actually works"
-        subtitle="Hands-on programs designed by founders, investors and experts — learn what it really takes to build and grow."
-      />
-      <section className="section-pad">
+      <section className="bg-ink py-10 text-white md:py-14">
         <div className="container-x">
+          <div className="max-w-3xl">
+            <span className="chip bg-white/10 text-white/85">Training Programs</span>
+            <h1 className="mt-4 text-3xl font-bold tracking-tight !text-white md:text-4xl">
+              Explore Our Latest Training Programs
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/75 md:text-lg">
+              Hands-on programs designed by founders, investors and experts to help you build and grow.
+            </p>
+            <label className="mt-6 flex max-w-xl overflow-hidden rounded-xl bg-white shadow-lift">
+              <span className="grid w-12 shrink-0 place-items-center text-slate-400">
+                <Search className="size-5" />
+              </span>
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                className="min-w-0 flex-1 px-1 py-3 text-sm text-ink outline-none"
+                placeholder="Search training programs..."
+              />
+              <span className="grid shrink-0 place-items-center bg-brand px-5 text-sm font-bold text-white">
+                Search
+              </span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section className="section-pad !pt-10">
+        <div className="container-x max-w-3xl">
+          <h2 className="text-xl font-bold">All Training Programs</h2>
           {categories.length > 2 ? (
-            <div className="mb-10 flex flex-wrap justify-center gap-2">
+            <div className="mb-8 mt-5 flex flex-wrap gap-2">
               {categories.map((item) => (
                 <button
                   key={item}
@@ -48,14 +140,14 @@ export default function CoursesPage() {
               ))}
             </div>
           ) : null}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 md:gap-8">
+          <div className="mt-6 space-y-4">
             {visible.map((course, index) => (
-              <Reveal key={course._id} delay={(index % 3) * 0.08}>
-                <CourseCard course={course} />
+              <Reveal key={course._id} delay={Math.min(index, 4) * 0.06}>
+                <CourseListItem course={course} />
               </Reveal>
             ))}
           </div>
-          {!visible.length ? <p className="text-center text-slate-500">No training programs published yet.</p> : null}
+          {!visible.length ? <p className="py-12 text-center text-slate-500">No training programs found.</p> : null}
         </div>
       </section>
 

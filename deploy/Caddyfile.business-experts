@@ -1,0 +1,61 @@
+# Add these site blocks to the shared Caddyfile used by giftme-caddy-1.
+# Keep the apex and www hosts separate so a www certificate issue cannot break
+# the main site certificate.
+
+realtyxpert.online {
+    import security_headers
+    encode zstd gzip
+
+    handle /api/* {
+        reverse_proxy be-backend:5000
+    }
+
+    handle /uploads/* {
+        reverse_proxy be-backend:5000
+    }
+
+    handle {
+        reverse_proxy be-frontend:80
+    }
+
+    log {
+        output stdout
+        format console
+    }
+}
+
+www.realtyxpert.online {
+    import security_headers
+    encode zstd gzip
+
+    redir https://realtyxpert.online{uri} permanent
+}
+
+admin.realtyxpert.online {
+    import security_headers
+    encode zstd gzip
+
+    handle /api/* {
+        reverse_proxy be-backend:5000
+    }
+
+    handle /uploads/* {
+        reverse_proxy be-backend:5000
+    }
+
+    handle {
+        reverse_proxy be-admin:80
+    }
+}
+
+api.realtyxpert.online {
+    import security_headers
+    encode zstd gzip
+
+    reverse_proxy be-backend:5000
+
+    log {
+        output stdout
+        format console
+    }
+}
