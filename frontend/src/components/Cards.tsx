@@ -217,7 +217,9 @@ export function CourseCard({ course }: { course: Course }) {
         <span className="text-xs font-semibold uppercase tracking-wider text-brand">
           {course.category || "Business Training"}
         </span>
-        <h3 className="mt-2 text-lg font-bold transition group-hover:text-brand">{course.title}</h3>
+        <h3 className="mt-2 line-clamp-2 min-h-14 text-lg font-bold leading-snug transition group-hover:text-brand">
+          {course.title}
+        </h3>
         <p className="mt-2 flex-1 text-sm leading-relaxed line-clamp-3">{course.shortDescription}</p>
         <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500">
           {course.duration ? (

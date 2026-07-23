@@ -11,9 +11,10 @@ import {
   TrendingUp,
   Users
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { apiGet, type HomeData } from "../api";
+import { apiGet, type HomeData, type Service } from "../api";
 import {
   BlogCard,
   CourseCard,
@@ -75,6 +76,88 @@ function ViewAll({ to, label }: { to: string; label: string }) {
   );
 }
 
+function ServiceCard({ service }: { service: Service }) {
+  return (
+    <Link to={`/services/${service.slug}`} className="card group flex h-full flex-col">
+      <div className="aspect-[16/9] overflow-hidden">
+        <Img
+          src={service.image}
+          alt={service.title}
+          className="size-full object-cover transition duration-500 group-hover:scale-105"
+        />
+      </div>
+      <div className="relative flex flex-1 flex-col p-4">
+        <span className="absolute -top-5 left-4 grid size-10 place-items-center rounded-xl bg-gradient-to-br from-brand to-brand-deep text-white shadow-glow ring-4 ring-white">
+          <Icon name={service.icon} className="size-4" />
+        </span>
+        <h3 className="mt-3.5 text-base font-bold transition group-hover:text-brand">{service.title}</h3>
+        <p className="mt-1.5 flex-1 text-xs leading-relaxed">{service.description}</p>
+        {service.features?.length ? (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {service.features.map((feature) => (
+              <span key={feature} className="chip !px-2 !py-0.5 !text-[11px] bg-brand-soft text-brand">{feature}</span>
+            ))}
+          </div>
+        ) : null}
+        <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-brand">
+          Learn more <ArrowRight className="size-3.5 transition group-hover:translate-x-1" />
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function ServicesCarousel({ services }: { services: Service[] }) {
+  const [start, setStart] = useState(0);
+  const perPage = 3;
+  const canSlide = services.length > perPage;
+
+  const visible = useMemo(() => {
+    if (!canSlide) return services.slice(0, perPage);
+    return Array.from({ length: perPage }, (_, offset) => services[(start + offset) % services.length]);
+  }, [canSlide, services, start]);
+
+  return (
+    <>
+      <div className="flex items-end justify-between gap-6">
+        <SectionHeading
+          eyebrow="What We Do"
+          title="Services built for every stage of growth"
+          subtitle="From first-time founders to established enterprises and community members — the ecosystem supports everyone."
+          align="left"
+        />
+        {canSlide ? (
+          <button
+            type="button"
+            onClick={() => setStart((current) => (current + 1) % services.length)}
+            aria-label="Show next services"
+            className="mb-1 hidden size-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-brand shadow-soft transition hover:bg-brand hover:text-white sm:flex"
+          >
+            <ArrowRight className="size-5" />
+          </button>
+        ) : null}
+      </div>
+      <div className="overflow-hidden">
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.div
+            key={start}
+            initial={{ opacity: 0, x: 60 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -60 }}
+            transition={{ duration: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}
+          >
+            <Grid>
+              {visible.map((service) => (
+                <ServiceCard key={service._id} service={service} />
+              ))}
+            </Grid>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </>
+  );
+}
+
 export default function HomePage() {
   const [data, setData] = useState<HomeData | null>(null);
   useSeo();
@@ -97,43 +180,7 @@ export default function HomePage() {
     services: data.services.length ? (
       <section key="services" id="services" className="section-pad bg-mist">
         <div className="container-x">
-          <SectionHeading
-            eyebrow="What We Do"
-            title="Services built for every stage of growth"
-            subtitle="From first-time founders to established enterprises and community members — the ecosystem supports everyone."
-          />
-          <Grid>
-            {data.services.map((service, index) => (
-              <Reveal key={service._id} delay={(index % 3) * 0.08}>
-                <Link to={`/services/${service.slug}`} className="card group flex h-full flex-col">
-                  <div className="aspect-[3/2] overflow-hidden">
-                    <Img
-                      src={service.image}
-                      alt={service.title}
-                      className="size-full object-cover transition duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="relative flex flex-1 flex-col p-6">
-                    <span className="absolute -top-7 left-6 grid size-13 place-items-center rounded-2xl bg-gradient-to-br from-brand to-brand-deep text-white shadow-glow ring-4 ring-white">
-                      <Icon name={service.icon} className="size-5.5" />
-                    </span>
-                    <h3 className="mt-5 text-lg font-bold transition group-hover:text-brand">{service.title}</h3>
-                    <p className="mt-2 flex-1 text-sm leading-relaxed">{service.description}</p>
-                    {service.features?.length ? (
-                      <div className="mt-4 flex flex-wrap gap-1.5">
-                        {service.features.map((feature) => (
-                          <span key={feature} className="chip bg-brand-soft text-brand">{feature}</span>
-                        ))}
-                      </div>
-                    ) : null}
-                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand">
-                      Learn more <ArrowRight className="size-4 transition group-hover:translate-x-1" />
-                    </span>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
-          </Grid>
+          <ServicesCarousel services={data.services} />
         </div>
       </section>
     ) : null,
