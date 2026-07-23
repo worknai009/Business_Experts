@@ -340,10 +340,17 @@ h4 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  border: none;
+  background: none;
+  cursor: pointer;
   font-size: 13px !important;
   font-weight: 700;
   color: #475569;
   white-space: nowrap;
+}
+
+.program-curriculum-expand:hover {
+  color: var(--color-brand);
 }
 
 .program-curriculum-list {
@@ -353,6 +360,7 @@ h4 {
 
 .program-curriculum-row-inner {
   display: flex;
+  width: 100%;
   align-items: center;
   min-height: 56px !important;
   gap: 14px !important;
@@ -360,6 +368,51 @@ h4 {
   border-radius: 10px;
   background: #f7f9fb;
   padding: 0 18px !important;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.program-curriculum-row-inner:hover:not(:disabled) {
+  background: #eef2f7;
+}
+
+.program-curriculum-row-inner:disabled {
+  cursor: default;
+}
+
+.program-curriculum-lessons-list {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding: 14px 18px 14px 60px;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.program-curriculum-lesson {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.program-curriculum-lesson-index {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  font-size: 11px;
+  font-weight: 800;
 }
 
 .program-curriculum-number {

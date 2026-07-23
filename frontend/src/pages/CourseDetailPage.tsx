@@ -120,24 +120,69 @@ function initials(name: string) {
     .join("");
 }
 
+type CurriculumModule = { title: string; lessons: string[] };
+
+// Syllabus lines are authored as "Module N: Title" followed by "- Lesson name"
+// lines; each dash-prefixed line attaches to the module above it.
+function parseSyllabus(syllabus: string[]): CurriculumModule[] {
+  const modules: CurriculumModule[] = [];
+  for (const raw of syllabus) {
+    const line = raw.trim();
+    if (!line) continue;
+    const lessonMatch = line.match(/^[-•]\s*(.+)$/);
+    if (lessonMatch && modules.length) {
+      modules[modules.length - 1].lessons.push(lessonMatch[1].trim());
+    } else {
+      const title = /^module\s+\d+/i.test(line) ? line : `Module ${modules.length + 1}: ${line}`;
+      modules.push({ title, lessons: [] });
+    }
+  }
+  return modules;
+}
+
 function CurriculumRow({
-  item,
-  index
+  module,
+  index,
+  open,
+  onToggle
 }: {
-  item: string;
+  module: CurriculumModule;
   index: number;
+  open: boolean;
+  onToggle: () => void;
 }) {
-  const lessonCount = index % 4 === 3 ? 5 : 4;
-  const title = /^module\s+\d+/i.test(item.trim()) ? item : `Module ${index + 1}: ${item}`;
+  const hasLessons = module.lessons.length > 0;
 
   return (
     <li className="program-curriculum-row">
-      <div className="program-curriculum-row-inner">
+      <button
+        type="button"
+        className="program-curriculum-row-inner"
+        onClick={onToggle}
+        disabled={!hasLessons}
+        aria-expanded={open}
+      >
         <span className="program-curriculum-number">{index + 1}</span>
-        <span className="program-curriculum-name">{title}</span>
-        <span className="program-curriculum-lessons">{lessonCount} Lessons</span>
-        <ChevronDown className="program-curriculum-chevron" />
-      </div>
+        <span className="program-curriculum-name">{module.title}</span>
+        {hasLessons ? (
+          <span className="program-curriculum-lessons">
+            {module.lessons.length} Lesson{module.lessons.length === 1 ? "" : "s"}
+          </span>
+        ) : null}
+        {hasLessons ? (
+          <ChevronDown className={`program-curriculum-chevron transition ${open ? "rotate-180" : ""}`} />
+        ) : null}
+      </button>
+      {hasLessons && open ? (
+        <ol className="program-curriculum-lessons-list">
+          {module.lessons.map((lesson, lessonIndex) => (
+            <li key={lesson} className="program-curriculum-lesson">
+              <span className="program-curriculum-lesson-index">{lessonIndex + 1}</span>
+              {lesson}
+            </li>
+          ))}
+        </ol>
+      ) : null}
     </li>
   );
 }
@@ -146,11 +191,13 @@ export default function CourseDetailPage() {
   const { slug } = useParams();
   const [course, setCourse] = useState<Course | null>(null);
   const [missing, setMissing] = useState(false);
+  const [openModules, setOpenModules] = useState<Set<number>>(new Set());
   useSeo(course?.title || "Training Program", course?.shortDescription);
 
   useEffect(() => {
     setCourse(null);
     setMissing(false);
+    setOpenModules(new Set());
     apiGet<Course>(`/courses/${slug}`)
       .then(setCourse)
       .catch(() => setMissing(true));
@@ -161,6 +208,21 @@ export default function CourseDetailPage() {
     const text = course?.description || course?.shortDescription || "";
     return text.split(/\n{2,}/).filter(Boolean).slice(0, 3);
   }, [course]);
+
+  const curriculum = useMemo(() => parseSyllabus(course?.syllabus || []), [course]);
+
+  function toggleModule(index: number) {
+    setOpenModules((current) => {
+      const next = new Set(current);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  }
+
+  function expandAll() {
+    setOpenModules(new Set(curriculum.map((_, index) => index).filter((index) => curriculum[index].lessons.length)));
+  }
 
   if (missing) {
     return (
@@ -182,8 +244,8 @@ export default function CourseDetailPage() {
   }
 
   const heroImage = course.heroImage || course.image;
-  const moduleCount = course.syllabus?.length || 0;
-  const lessonsCount = moduleCount ? moduleCount * 4 : 32;
+  const moduleCount = curriculum.length;
+  const lessonsCount = curriculum.reduce((total, module) => total + module.lessons.length, 0);
   const resourceCount = Math.max(course.highlights?.length || 0, 10);
   const priceText = course.priceLabel || course.priceClass || "Free";
   const benefits = (course.highlights?.length ? course.highlights : fallbackBenefits).slice(0, 6);
@@ -326,17 +388,23 @@ export default function CourseDetailPage() {
               </Reveal>
             ) : null}
 
-            {course.syllabus?.length ? (
+            {curriculum.length ? (
               <Reveal className="program-curriculum-block">
                 <div className="program-curriculum-head">
                   <h2 className="program-curriculum-title">Program Curriculum</h2>
-                  <span className="program-curriculum-expand">
+                  <button type="button" className="program-curriculum-expand" onClick={expandAll}>
                     Expand All <Maximize2 className="size-4" />
-                  </span>
+                  </button>
                 </div>
                 <ol className="program-curriculum-list">
-                  {course.syllabus.map((item, index) => (
-                    <CurriculumRow key={`${item}-${index}`} item={item} index={index} />
+                  {curriculum.map((module, index) => (
+                    <CurriculumRow
+                      key={`${module.title}-${index}`}
+                      module={module}
+                      index={index}
+                      open={openModules.has(index)}
+                      onToggle={() => toggleModule(index)}
+                    />
                   ))}
                 </ol>
               </Reveal>

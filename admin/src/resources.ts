@@ -79,7 +79,12 @@ export const RESOURCES: ResourceConfig[] = [
       { name: "description", label: "Full description", type: "richtext" },
       { name: "image", label: "Cover image", type: "image" },
       { name: "heroImage", label: "Hero image", type: "image", hint: "Shown on the training program detail hero. Leave empty to use the cover image." },
-      { name: "syllabus", label: "Syllabus / modules", type: "list", hint: "One module or topic per line" },
+      {
+        name: "syllabus",
+        label: "Syllabus / modules",
+        type: "list",
+        hint: "One module per line. Indent lesson lines under a module with a leading dash, e.g. \"Module 1: Business Basics\" then \"- What is a Business Plan\" on the next lines."
+      },
       { name: "highlights", label: "Highlights", type: "list", hint: "e.g. Certificate included, Live mentorship" },
       { name: "enrollLink", label: "Enroll link", type: "text", placeholder: "External form / payment link (optional)" },
       { name: "video", label: "Intro video URL", type: "text", placeholder: "Paste a YouTube or Vimeo link", hint: "Any YouTube/Vimeo link works — share, watch, or embed URL" },

@@ -61,10 +61,14 @@ function CourseListItem({ course }: { course: Course }) {
   );
 }
 
+const ALL = "All";
+
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [stories, setStories] = useState<SuccessStory[]>([]);
-  const [category, setCategory] = useState("All");
+  const [category, setCategory] = useState(ALL);
+  const [level, setLevel] = useState(ALL);
+  const [duration, setDuration] = useState(ALL);
   const [query, setQuery] = useState("");
   useSeo("Training Programs", "Practical business training programs led by experienced founders, investors and experts.");
 
@@ -74,14 +78,33 @@ export default function CoursesPage() {
   }, []);
 
   const categories = useMemo(
-    () => ["All", ...Array.from(new Set(courses.map((course) => course.category).filter(Boolean)))],
+    () => [ALL, ...Array.from(new Set(courses.map((course) => course.category).filter(Boolean)))],
     [courses]
   );
+  const levels = useMemo(
+    () => [ALL, ...Array.from(new Set(courses.map((course) => course.level).filter(Boolean)))],
+    [courses]
+  );
+  const durations = useMemo(
+    () => [ALL, ...Array.from(new Set(courses.map((course) => course.duration).filter(Boolean)))],
+    [courses]
+  );
+
+  const filtersActive = category !== ALL || level !== ALL || duration !== ALL || query.trim() !== "";
+
+  function clearFilters() {
+    setCategory(ALL);
+    setLevel(ALL);
+    setDuration(ALL);
+    setQuery("");
+  }
+
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return courses.filter((course) => {
-      const inCategory = category === "All" || course.category === category;
-      if (!inCategory) return false;
+      if (category !== ALL && course.category !== category) return false;
+      if (level !== ALL && course.level !== level) return false;
+      if (duration !== ALL && course.duration !== duration) return false;
       if (!normalized) return true;
       return [course.title, course.category, course.shortDescription, course.description, ...(course.highlights || [])]
         .filter(Boolean)
@@ -89,7 +112,7 @@ export default function CoursesPage() {
         .toLowerCase()
         .includes(normalized);
     });
-  }, [category, courses, query]);
+  }, [category, courses, duration, level, query]);
 
   return (
     <>
@@ -117,6 +140,40 @@ export default function CoursesPage() {
                 Search
               </span>
             </label>
+
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <select
+                value={level}
+                onChange={(event) => setLevel(event.target.value)}
+                className="rounded-lg border-0 bg-white/10 px-3.5 py-2 text-sm font-semibold text-white outline-none [&>option]:text-ink"
+              >
+                {levels.map((item) => (
+                  <option key={item} value={item}>
+                    {item === ALL ? "All Levels" : item}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={duration}
+                onChange={(event) => setDuration(event.target.value)}
+                className="rounded-lg border-0 bg-white/10 px-3.5 py-2 text-sm font-semibold text-white outline-none [&>option]:text-ink"
+              >
+                {durations.map((item) => (
+                  <option key={item} value={item}>
+                    {item === ALL ? "Any Duration" : item}
+                  </option>
+                ))}
+              </select>
+              {filtersActive ? (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="text-sm font-semibold text-white/70 underline-offset-2 hover:text-white hover:underline"
+                >
+                  Clear filters
+                </button>
+              ) : null}
+            </div>
           </div>
         </div>
       </section>
