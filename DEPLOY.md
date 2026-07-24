@@ -1,4 +1,4 @@
-# Deployment — realtyxpert.online
+# Deployment — businessexperts.asia
 
 **Fully automatic pipeline:** `git push` to `main` → GitHub Actions does EVERYTHING on the VPS:
 installs Docker (first run), syncs code, writes `.env` from GitHub Secrets, builds containers,
@@ -6,9 +6,9 @@ starts/reloads all services. The shared Caddy container manages SSL and routes t
 
 | Domain | Serves |
 | --- | --- |
-| `realtyxpert.online` (+ `www` redirect) | Public website |
-| `admin.realtyxpert.online` | Admin panel |
-| `api.realtyxpert.online` | Backend API |
+| `businessexperts.asia` (+ `www` redirect) | Public website |
+| `admin.businessexperts.asia` | Admin panel |
+| `api.businessexperts.asia` | Backend API |
 
 ---
 
@@ -69,10 +69,10 @@ git push
 That's it. Watch progress in GitHub → Actions (~3–5 min; first run longer).
 
 Then check:
-- https://realtyxpert.online
-- https://admin.realtyxpert.online
-- https://api.realtyxpert.online/api/health
-- https://realtyxpert.online/api/home should return JSON, not the frontend `index.html`.
+- https://businessexperts.asia
+- https://admin.businessexperts.asia
+- https://api.businessexperts.asia/api/health
+- https://businessexperts.asia/api/home should return JSON, not the frontend `index.html`.
 
 ## Shared Caddy config
 

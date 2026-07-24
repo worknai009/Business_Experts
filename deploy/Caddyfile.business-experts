@@ -2,7 +2,7 @@
 # Keep the apex and www hosts separate so a www certificate issue cannot break
 # the main site certificate.
 
-realtyxpert.online {
+businessexperts.asia {
     import security_headers
     encode zstd gzip
 
@@ -24,14 +24,14 @@ realtyxpert.online {
     }
 }
 
-www.realtyxpert.online {
+www.businessexperts.asia {
     import security_headers
     encode zstd gzip
 
-    redir https://realtyxpert.online{uri} permanent
+    redir https://businessexperts.asia{uri} permanent
 }
 
-admin.realtyxpert.online {
+admin.businessexperts.asia {
     import security_headers
     encode zstd gzip
 
@@ -48,7 +48,7 @@ admin.realtyxpert.online {
     }
 }
 
-api.realtyxpert.online {
+api.businessexperts.asia {
     import security_headers
     encode zstd gzip
 

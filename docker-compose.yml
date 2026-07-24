@@ -29,7 +29,7 @@ services:
       - edge
 
 # Reverse proxy + SSL is handled by the shared Caddy container (giftme-caddy-1)
-# on the external "giftme_app" network. It routes realtyxpert.online domains to
+# on the external "giftme_app" network. It routes businessexperts.asia domains to
 # be-frontend / be-admin / be-backend and manages certificates automatically.
 networks:
   edge:
