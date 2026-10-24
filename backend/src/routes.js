@@ -3,7 +3,7 @@ import { Router } from "express";
 import fs from "fs";
 import multer from "multer";
 import path from "path";
-import { authRouter, requireAuth } from "./auth.js";
+import { authRouter, requireAuth, requireStaff } from "./auth.js";
 import { adminCrudRouter, handle, publicRouter } from "./crud.js";
 import {
   BlogPost,
@@ -168,7 +168,7 @@ publicApi.post(
 /* --------------------------------- Admin API --------------------------------- */
 
 export const adminApi = Router();
-adminApi.use(requireAuth);
+adminApi.use(requireAuth, requireStaff);
 
 for (const [name, Model] of Object.entries(RESOURCES)) {
   adminApi.use(

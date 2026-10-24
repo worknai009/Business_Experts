@@ -1,0 +1,6 @@
+# For an existing Caddy proxy, e.g. giftme-caddy-1.
+# Import deploy/Caddyfile.business-experts into its Caddyfile first.
+networks:
+  edge:
+    name: ${EDGE_NETWORK_NAME:-giftme_app}
+    external: true

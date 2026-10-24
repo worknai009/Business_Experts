@@ -1,0 +1,1751 @@
+@import "tailwindcss";
+
+/* ── Tailwind v4: use class-based dark mode (html.dark) instead of OS media query ── */
+@variant dark (&:where(.dark, .dark *));
+
+/* ═══════════════════════════════════════════════════════════════
+   BREAKPOINT TUNING — index.css me `@import "tailwindcss";` ke
+   THIK BAAD paste karo (theme block se pehle).
+
+   Default Tailwind breakpoints:
+     sm 640px | md 768px | lg 1024px | xl 1280px
+
+   Problem: laptop screens aksar 1366px hote hain, aur browser
+   chrome + scrollbar ke baad usable width ~900-1000px bachti hai.
+   Isliye `lg:` wale multi-column layouts (5 steps, 4 photo cards)
+   kabhi trigger hi nahi hote the.
+
+   Ye ek block poore project ke HAR `lg:` / `xl:` class ko jaldi
+   activate kar deta hai — kisi component ko chhune ki zaroorat nahi.
+   ═══════════════════════════════════════════════════════════════ */
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --breakpoint-sm: 560px;
+  --breakpoint-md: 720px;
+  --breakpoint-lg: 900px;
+  --breakpoint-xl: 1150px;
+  --breakpoint-2xl: 1400px;
+
+  /* Richer, deeper Dark Green Palette */
+  --color-emerald-50:  #f0fdf4;
+  --color-emerald-100: #dcfce7;
+  --color-emerald-200: #bbf7d0;
+  --color-emerald-300: #86efac;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #059669;
+  --color-emerald-600: #047857;
+  --color-emerald-700: #065f46;
+  --color-emerald-800: #064e3b;
+  --color-emerald-900: #022c22;
+  --color-emerald-950: #011c15;
+
+  --color-green-500: #059669;
+  --color-green-600: #047857;
+  --color-green-700: #065f46;
+}
+
+html {
+  scroll-padding-top: 5rem;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* GPU Hardware Acceleration for zero-lag smooth 60fps/120fps scrolling */
+.landing-page {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  backface-visibility: hidden;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.scroll-gpu {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.006em;
+  line-height: 1.6;
+  word-spacing: 0.02em;
+}
+
+/* ── Custom Sleek Smooth Scrollbar ── */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #86efac;
+  border-radius: 9999px;
+  border: 1.5px solid #f0fdf4;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #059669;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+  border: 1.5px solid #020617;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #047857;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: -0.012em;
+  line-height: 1.25;
+  word-spacing: 0.02em;
+}
+
+p {
+  line-height: 1.65;
+  letter-spacing: -0.005em;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LIQUID GLASS DESIGN SPECIFICATION (EXACT)
+   ═══════════════════════════════════════════════════════════════ */
+.liquid-glass {
+  background: rgba(0, 0, 0, 0.4);
+  background-blend-mode: luminosity;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: none;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.4px;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 20%,
+    rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
+    rgba(255,255,255,0.1) 80%, rgba(255,255,255,0.3) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   BUSINESSAI THEME SYSTEM — Deep Dark Green accent + Dark/Light mode
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: dark;
+
+  /* ── Surface tokens ── */
+  --app-bg: #060b17;
+  --app-surface-deep: #060a14;
+  --app-panel: rgba(13, 18, 32, 0.8);
+  --app-panel-2: rgba(15, 23, 42, 0.9);
+  --app-border: rgba(30, 41, 59, 0.85);
+  --hover-tint: rgba(255, 255, 255, 0.05);
+
+  /* ── Text tokens ── */
+  --text-strong: #ffffff;
+  --text-body: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  /* ── Accent (rich dark green) ── */
+  --accent: #10b981;
+  --accent-400: #34d399;
+  --accent-500: #059669;
+  --accent-600: #047857;
+  --accent-700: #065f46;
+  --accent-soft: rgba(4, 120, 87, 0.18);
+  --accent-border: rgba(4, 120, 87, 0.38);
+
+  /* ══ INDIGO → DEEP GREEN ══ */
+  --color-indigo-50:  #ecfdf3;
+  --color-indigo-100: #d1fadf;
+  --color-indigo-200: #a6f4c5;
+  --color-indigo-300: #6ce9a6;
+  --color-indigo-400: #34d399;
+  --color-indigo-500: #059669;
+  --color-indigo-600: #047857;
+  --color-indigo-700: #065f46;
+  --color-indigo-800: #064e3b;
+  --color-indigo-900: #022c22;
+  --color-indigo-950: #011c15;
+
+  /* ══ PURPLE → DEEP GREEN ══ */
+  --color-purple-50:  #ecfdf3;
+  --color-purple-100: #d1fadf;
+  --color-purple-200: #a6f4c5;
+  --color-purple-300: #86efac;
+  --color-purple-400: #34d399;
+  --color-purple-500: #059669;
+  --color-purple-600: #047857;
+  --color-purple-700: #065f46;
+  --color-purple-800: #064e3b;
+  --color-purple-900: #022c22;
+  --color-purple-950: #011c15;
+
+  /* ══ VIOLET / CYAN → DEEP GREEN ══ */
+  --color-violet-400: #34d399;
+  --color-violet-500: #059669;
+  --color-violet-600: #047857;
+  --color-cyan-300:   #6ce9a6;
+  --color-cyan-400:   #34d399;
+  --color-cyan-500:   #059669;
+}
+
+/* ═══════════════════ LIGHT MODE (MINT FROSTED THEME) ═══════════════════ */
+
+html.light {
+  color-scheme: light;
+
+  --app-bg: #f8fafc;
+  --app-surface-deep: #f0fdf4;
+  --app-panel: #f0fdf4;
+  --app-panel-2: #ffffff;
+  --app-border: #bbf7d0;
+  --hover-tint: rgba(4, 120, 87, 0.05);
+
+  --text-strong: #061c16;
+  --text-body: #334155;
+  --text-muted: #475569;
+  --text-dim: #64748b;
+
+  --accent: #047857;
+  --accent-400: #059669;
+  --accent-soft: #dcfce7;
+  --accent-border: #86efac;
+
+  /* Standard Slate palette for Light Mode */
+  --color-slate-50:  #f8fafc;
+  --color-slate-100: #f0fdf4;
+  --color-slate-200: #bbf7d0;
+  --color-slate-300: #86efac;
+  --color-slate-400: #64748b;
+  --color-slate-500: #475569;
+  --color-slate-600: #334155;
+  --color-slate-700: #1e293b;
+  --color-slate-800: #0f172a;
+  --color-slate-900: #061c16;
+  --color-slate-950: #020617;
+
+  /* Rich Dark Green accent */
+  --color-indigo-300: #065f46;
+  --color-indigo-400: #047857;
+  --color-purple-300: #065f46;
+  --color-purple-400: #047857;
+  --color-cyan-300:   #065f46;
+  --color-cyan-400:   #047857;
+  --color-emerald-300: #065f46;
+  --color-amber-300:  #b45309;
+  --color-amber-400:  #d97706;
+}
+
+html.light,
+html.light body {
+  background-color: #f4f9f5 !important;
+  background-image: 
+    radial-gradient(at 15% 15%, rgba(187, 247, 208, 0.45) 0px, transparent 50%),
+    radial-gradient(at 85% 15%, rgba(220, 252, 231, 0.5) 0px, transparent 50%),
+    radial-gradient(at 50% 85%, rgba(187, 247, 208, 0.35) 0px, transparent 55%),
+    radial-gradient(#86efac 0.75px, transparent 0.75px) !important;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 24px 24px !important;
+  background-attachment: fixed !important;
+}
+
+html.light .analyze-page,
+html.light .page-container,
+html.light main,
+html.light .dashboard-shell {
+  background: transparent !important;
+}
+
+html.light .analysis-section,
+html.light .metrics-section,
+html.light .insights-section,
+html.light .chart-section,
+html.light .better-section,
+html.light .analysis-input-panel {
+  background: #f0fdf4 !important;
+  border: 1px solid #bbf7d0 !important;
+  border-radius: 28px !important;
+  box-shadow: 0 4px 20px rgba(4, 120, 87, 0.04) !important;
+}
+
+html.light .score-panel,
+html.light .overview-item,
+html.light .metric-card,
+html.light .insight-card,
+html.light .score-breakdown,
+html.light .recommendation-box,
+html.light .recommendation-actions {
+  background: #ffffff !important;
+  border: 1px solid #bbf7d0 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 2px 10px rgba(4, 120, 87, 0.03) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL BULLETPROOF BUTTON & CHIP CONTRAST RULES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. GREEN PRIMARY BUTTONS & CTAs — ALWAYS WHITE TEXT + RICH DARK GREEN */
+button[class*="bg-emerald"],
+a[class*="bg-emerald"],
+button[class*="bg-green"],
+a[class*="bg-green"],
+.bg-emerald-600,
+.bg-emerald-700,
+.bg-emerald-500,
+.bg-green-600,
+.btn-primary {
+  background-color: #047857 !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+button[class*="bg-emerald"]:hover,
+a[class*="bg-emerald"]:hover,
+button[class*="bg-green"]:hover,
+a[class*="bg-green"]:hover,
+.bg-emerald-600:hover,
+.bg-emerald-700:hover {
+  background-color: #065f46 !important;
+}
+
+button[class*="bg-emerald"] *,
+a[class*="bg-emerald"] *,
+button[class*="bg-green"] *,
+a[class*="bg-green"] *,
+.bg-emerald-600 *,
+.bg-emerald-700 *,
+.bg-emerald-500 *,
+.bg-green-600 * {
+  color: #ffffff !important;
+}
+
+/* 2. LIGHT MODE — NEUTRAL BUTTONS, CHIPS & SECONDARY CTAs */
+html.light button:not([class*="bg-emerald"]):not([class*="bg-green"]):not([class*="bg-gradient"]):not([style*="background-color: rgb(4, 120, 87)"]):not([style*="background-color: #047857"]):not(.footer-link):not([class*="footer-link"]):not([class*="text-left"]),
+html.light a.btn-secondary,
+html.light .btn-secondary,
+html.light a[class*="bg-slate-100"],
+html.light button[class*="bg-slate-100"],
+html.light a[class*="bg-slate-200"],
+html.light button[class*="bg-slate-200"],
+html.light a[class*="bg-white"],
+html.light button[class*="bg-white"] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light button:not([class*="bg-emerald"]):not([class*="bg-green"]):not([class*="bg-gradient"]):not([style*="background-color: rgb(4, 120, 87)"]):not([style*="background-color: #047857"]):not(.footer-link):not([class*="footer-link"]):not([class*="text-left"]) *,
+html.light a.btn-secondary *,
+html.light .btn-secondary *,
+html.light a[class*="bg-slate-100"] *,
+html.light button[class*="bg-slate-100"] *,
+html.light a[class*="bg-slate-200"] *,
+html.light button[class*="bg-slate-200"] *,
+html.light a[class*="bg-white"] *,
+html.light button[class*="bg-white"] * {
+  color: #0f172a !important;
+}
+
+/* Footer Link Reset */
+.footer-link,
+.footer-link * {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Light mode text gradient headings */
+html.light span.bg-clip-text,
+html.light .bg-clip-text,
+html.light [class*="bg-clip-text"] {
+  background-image: linear-gradient(to right, #065f46, #047857, #059669) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+html.light body,
+html.light .landing-page,
+html.light main,
+html.light section,
+html.light header,
+html.light footer,
+html.light .landing-section,
+html.light .landing-section-compact {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html.dark body,
+html.dark .landing-page,
+html.dark main,
+html.dark section,
+html.dark header,
+html.dark footer,
+html.dark .landing-section,
+html.dark .landing-section-compact {
+  background-color: #060b17 !important;
+  color: #ffffff !important;
+}
+
+/* Hardcoded dark cards to clean white in light mode */
+html.light .bg-\[\#060b17\],
+html.light .bg-\[\#07090f\],
+html.light .bg-\[\#0b0f19\],
+html.light .bg-\[\#060810\],
+html.light .bg-\[\#070d19\],
+html.light .bg-\[\#111827\],
+html.light .bg-\[\#03050a\],
+html.light .bg-\[\#05070d\],
+html.light .dark\:bg-\[\#070d19\] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+html.light li,
+html.light .text-slate-300,
+html.light .text-slate-400,
+html.light .text-slate-500,
+html.light .text-slate-600 {
+  color: #1e293b !important;
+}
+
+/* Empty State Card Explicit Light Mode Rules */
+html.light .empty-state-card h2,
+html.light .empty-state-card h3,
+html.light .empty-state-card strong {
+  color: #0f172a !important;
+}
+
+html.light .empty-state-card p,
+html.light .empty-state-card span:not([class*="bg-clip-text"]):not([class*="bg-emerald"]):not([class*="bg-green"]) {
+  color: #334155 !important;
+}
+
+/* ── Dashboard Mockup Explicit Theme Rules ── */
+html.light .dashboard-mockup-card {
+  background-color: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 32px 64px -12px rgba(15, 23, 42, 0.40), 0 8px 24px -4px rgba(15, 23, 42, 0.18) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 1 !important;
+  isolation: isolate !important;
+}
+html.light .dashboard-mockup-header {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+html.light .dashboard-header-title {
+  color: #0f172a !important;
+}
+html.light .dashboard-mockup-widget {
+  background-color: #e8eef5 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+html.light .dashboard-mockup-footer {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+html.light .dashboard-mockup-footer > div {
+  border-color: #cbd5e1 !important;
+}
+html.light .dashboard-text-primary {
+  color: #0f172a !important;
+}
+html.light .dashboard-text-muted {
+  color: #334155 !important;
+}
+html.light .dashboard-text-bold {
+  color: #0f172a !important;
+}
+
+html.dark .dashboard-mockup-card {
+  background-color: #090d16 !important;
+  border: 1px solid #1e293b !important;
+  color: #ffffff !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+html.dark .dashboard-mockup-header {
+  background-color: #060a12 !important;
+  border-color: #1e293b !important;
+}
+html.dark .dashboard-header-title {
+  color: #cbd5e1 !important;
+}
+html.dark .dashboard-mockup-widget {
+  background-color: #0d1322 !important;
+  border: 1px solid #1e293b !important;
+}
+html.dark .dashboard-mockup-footer {
+  background-color: #060a12 !important;
+  border-color: #1e293b !important;
+}
+html.dark .dashboard-mockup-footer > div {
+  border-color: #1e293b !important;
+}
+html.dark .dashboard-text-primary {
+  color: #ffffff !important;
+}
+html.dark .dashboard-text-muted {
+  color: #94a3b8 !important;
+}
+html.dark .dashboard-text-bold {
+  color: #e2e8f0 !important;
+}
+
+html.light .empty-state-card .bg-clip-text {
+  background-image: linear-gradient(to right, #15803d, #16a34a) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* Green text highlights stay rich deep emerald green in light mode */
+html.light .text-emerald-400,
+html.light .text-emerald-300,
+html.light .text-emerald-200,
+html.light .text-emerald-500,
+html.light .text-emerald-600,
+html.light .text-green-400,
+html.light .text-green-500,
+html.light .text-green-600,
+html.light .text-indigo-400 {
+  color: #15803d !important;
+  font-weight: 800 !important;
+}
+
+/* Primary Emerald CTA buttons keep crisp white text and white icons */
+html.light button.bg-emerald-600,
+html.light a.bg-emerald-600,
+html.light button.bg-emerald-600 *,
+html.light a.bg-emerald-600 *,
+html.light button.bg-emerald-700,
+html.light button.bg-emerald-700 * {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* Remove line/grid backgrounds completely in Light Mode */
+html.light [class*="bg-[linear-gradient"],
+html.light [class*="bg-[size:"],
+html.light div[class*="bg-[linear-gradient"] {
+  display: none !important;
+  background-image: none !important;
+  background: transparent !important;
+}
+
+/* Ensure ALL labels and text in Light Mode on cards/forms are dark slate */
+html.light form label,
+html.light label {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+html.light form input,
+html.light form select,
+html.light form textarea {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light form input::placeholder {
+  color: #64748b !important;
+}
+
+/* ═══════════════════ SUPER ADMIN PERMANENT DARK SCOPE ═══════════════════ */
+.super-admin-scope,
+html.light .super-admin-scope,
+html.light body:has(.super-admin-scope) {
+  background-color: #04060c !important;
+  color: #f8fafc !important;
+}
+
+html.light .super-admin-scope div,
+html.light .super-admin-scope aside,
+html.light .super-admin-scope main,
+html.light .super-admin-scope header,
+html.light .super-admin-scope nav,
+html.light .super-admin-scope article,
+html.light .super-admin-scope section,
+html.light .super-admin-scope form,
+html.light .super-admin-scope p,
+html.light .super-admin-scope span,
+html.light .super-admin-scope h1,
+html.light .super-admin-scope h2,
+html.light .super-admin-scope h3,
+html.light .super-admin-scope h4,
+html.light .super-admin-scope h5,
+html.light .super-admin-scope h6,
+html.light .super-admin-scope label,
+html.light .super-admin-scope li,
+html.light .super-admin-scope a,
+html.light .super-admin-scope input,
+html.light .super-admin-scope button {
+  color: inherit;
+}
+
+html.light .super-admin-scope .bg-slate-950,
+html.light .super-admin-scope .bg-slate-900,
+html.light .super-admin-scope .bg-\[\#04060c\],
+html.light .super-admin-scope .bg-\[\#060a15\],
+html.light .super-admin-scope .bg-\[\#05070d\],
+html.light .super-admin-scope .bg-\[\#03050a\],
+html.light .super-admin-scope .bg-\[\#070b16\] {
+  background-color: #05070d !important;
+  border-color: rgba(30, 41, 59, 0.8) !important;
+  box-shadow: none !important;
+}
+
+html.light .super-admin-scope h1,
+html.light .super-admin-scope h2,
+html.light .super-admin-scope h3,
+html.light .super-admin-scope h4,
+html.light .super-admin-scope h5,
+html.light .super-admin-scope h6,
+html.light .super-admin-scope .text-white {
+  color: #ffffff !important;
+}
+
+html.light .super-admin-scope p,
+html.light .super-admin-scope span,
+html.light .super-admin-scope small,
+html.light .super-admin-scope label,
+html.light .super-admin-scope li,
+html.light .super-admin-scope .text-slate-300,
+html.light .super-admin-scope .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+html.light .super-admin-scope input,
+html.light .super-admin-scope select,
+html.light .super-admin-scope textarea {
+  background-color: #03050a !important;
+  color: #ffffff !important;
+  border-color: rgba(225, 29, 72, 0.4) !important;
+}
+
+html.light .super-admin-scope input::placeholder {
+  color: #64748b !important;
+}
+
+/* Light mode input fields & selects */
+html.light input,
+html.light select,
+html.light textarea {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #64748b !important;
+}
+
+html.light .shadow-2xl,
+html.light .shadow-xl {
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.12);
+}
+html.light .backdrop-blur-xl,
+html.light .backdrop-blur-md { backdrop-filter: blur(12px); }
+
+/* Hardcoded backgrounds ab token se */
+body,
+.landing-section,
+.landing-section-compact {
+  background: var(--app-bg) !important;
+}
+
+/* Theme switch smooth */
+html { transition: background-color 0.25s ease; }
+body, header, aside, main, section, footer, .analyze-page {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* ═══ Global SaaS Layout Container & Section Rhythm ═══ */
+.page-container, .reference-section-inner {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+
+.faq-container {
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+
+.landing-section {
+  padding: 56px 0 !important;
+  background: var(--app-bg) !important;
+}
+
+.landing-section-compact {
+  padding: 36px 0 !important;
+  background: var(--app-bg) !important;
+}
+
+.reference-public-nav .premium-anchor-button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  padding: 0 12px;
+  min-height: 38px;
+  border-radius: 10px;
+  color: var(--text-muted);
+  transition: color 0.2s, background 0.2s;
+}
+.reference-public-nav .premium-anchor-button:hover {
+  color: var(--text-strong);
+  background: var(--hover-tint);
+}
+
+/* Equal Height Flex Utilities */
+.equal-card-grid {
+  display: grid;
+  align-items: stretch;
+}
+
+/* Full screen landing page layout */
+.landing-page { width: 100%; overflow-x: clip; }
+.landing-page .page-container,
+.landing-page .faq-container,
+.landing-page [class*="max-w-[1200px]"],
+.landing-page [class*="max-w-4xl"],
+.landing-page [class*="max-w-5xl"],
+.landing-page [class*="max-w-6xl"],
+.landing-page [class*="max-w-7xl"] {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+.landing-page .landing-section { padding-top: 56px !important; padding-bottom: 56px !important; scroll-margin-top: 88px; }
+.landing-page .landing-section--how { padding-top: 64px !important; padding-bottom: 60px !important; }
+.landing-page .landing-section-heading { margin-bottom: 32px !important; }
+.landing-page .landing-section-heading > h2 { font-size: clamp(2rem, 4vw, 3.35rem) !important; line-height: 1.08 !important; text-align: center !important; max-width: 100% !important; margin-inline: auto !important; }
+.landing-page .landing-section-heading > p:last-child { max-width: 1000px; margin-inline: auto; }
+.landing-page .landing-section-heading--compact { margin-bottom: 28px !important; }
+.landing-page #how-it-works > .max-w-4xl { max-width: 100% !important; margin-inline: auto !important; }
+.landing-page #how-it-works > .max-w-4xl > div { min-height: 72px; padding: 16px 22px !important; align-items: center !important; }
+.landing-page #how-it-works > .max-w-4xl > div h3 { font-size: clamp(1rem, 1.6vw, 1.18rem) !important; }
+.landing-page #how-it-works > .max-w-4xl > div p { font-size: 0.86rem !important; }
+.landing-page .landing-section > .bg-gradient-to-br { max-width: 100% !important; margin-inline: auto; padding: 28px 30px !important; }
+.landing-page .landing-section > .bg-gradient-to-br > div:first-child h2 { font-size: clamp(1.35rem, 2.4vw, 2rem) !important; line-height: 1.15 !important; }
+.landing-page #search .max-w-2xl { max-width: 100% !important; }
+.landing-page #search > form { max-width: 100% !important; padding: 24px !important; }
+.landing-page #features { padding-top: 56px !important; padding-bottom: 56px !important; }
+.landing-page #features .page-container > div:first-child { margin-bottom: 28px !important; }
+.landing-page #solutions .landing-section-heading { margin-bottom: 28px !important; }
+.landing-page #solutions .grid { max-width: 100% !important; gap: 18px !important; }
+.landing-page #solutions .grid > div { padding: 20px !important; min-height: 150px; }
+.landing-page .landing-section--report { padding: 0 !important; scroll-margin-top: 88px; }
+.landing-page .landing-section--report > section { padding-top: 56px !important; padding-bottom: 56px !important; }
+.landing-page #pricing .grid { gap: 20px !important; }
+.landing-page #pricing .grid > div { padding: 24px !important; }
+.landing-page .faq-container { width: 100% !important; max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; }
+.landing-page #faq [class*="space-y-3.5"] { gap: 10px !important; max-width: 100% !important; }
+.landing-page #faq [class*="space-y-3.5"] > div { padding: 14px 20px !important; border-radius: 14px !important; }
+.landing-page #faq [class*="space-y-3.5"] > div span { font-size: 0.95rem !important; }
+.landing-page .landing-section--cta { padding-top: 60px !important; padding-bottom: 60px !important; }
+.landing-page .landing-footer { padding-top: 42px !important; padding-bottom: 30px !important; }
+
+@media (max-width: 768px) {
+  .landing-page .landing-section, .landing-page .landing-section--how, .landing-page .landing-section--cta { padding-top: 44px !important; padding-bottom: 44px !important; }
+  .landing-page .landing-section-heading { margin-bottom: 24px !important; }
+  .landing-page #how-it-works > .max-w-4xl > div { min-height: 0; padding: 14px 16px !important; }
+  .landing-page .landing-section > .bg-gradient-to-br { padding: 22px 18px !important; border-radius: 22px !important; }
+  .landing-page #search > form { padding: 18px !important; }
+  .landing-page #solutions .grid > div { min-height: 0; padding: 18px !important; }
+  .landing-page .landing-section--report > section { padding-top: 44px !important; padding-bottom: 44px !important; }
+  .landing-page #pricing .grid > div { padding: 22px !important; }
+}
+
+/* ═══ Analyze Page & Component Layout Styles ═══ */
+.analyze-page {
+  min-height: calc(100vh - 4rem);
+  background: var(--app-bg);
+  color: var(--text-strong);
+  padding: 24px 16px 64px;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.analyze-shell {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.analysis-input-panel {
+  background: var(--app-panel);
+  border: 1px solid var(--accent-border);
+  border-radius: 24px;
+  padding: 28px 32px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.analysis-input-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.analysis-input-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-eyebrow {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin: 0 0 4px;
+}
+
+.analysis-input-heading h2 {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.analysis-input-heading p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+.analysis-input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.analysis-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.analysis-field span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.analysis-field div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: var(--app-surface-deep);
+  border: 1px solid var(--app-border);
+  color: var(--text-dim);
+  transition: border-color 0.2s;
+}
+
+.analysis-field div:focus-within {
+  border-color: var(--accent);
+}
+
+.analysis-field input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-strong);
+  font-size: 13px;
+  outline: none;
+}
+
+.analysis-submit {
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent-600), var(--accent-500));
+  color: var(--text-strong);
+  font-size: 13px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+  transition: opacity 0.2s;
+}
+
+.analysis-submit:hover {
+  opacity: 0.95;
+}
+
+.report-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.report-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--app-border);
+  padding-bottom: 20px;
+}
+
+.report-intro .section-eyebrow {
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.16em !important;
+  color: var(--accent) !important;
+  margin-bottom: 6px !important;
+}
+
+.report-intro h1 {
+  font-size: 38px !important;
+  font-weight: 900 !important;
+  color: var(--text-strong) !important;
+  line-height: 1.15 !important;
+  margin: 4px 0 8px !important;
+  text-align: left !important;
+}
+
+.report-intro p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.report-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.report-status span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+}
+
+.analysis-command-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-radius: 16px;
+  background: var(--app-panel-2);
+  border: 1px solid var(--accent-border);
+}
+
+.command-bar-kicker {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  display: block;
+}
+
+.analysis-command-bar strong {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-strong);
+  display: block;
+  margin: 2px 0;
+}
+
+.analysis-command-bar span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.analysis-section, .metrics-section, .insights-section, .chart-section, .better-section {
+  background: var(--app-panel);
+  border: 1px solid var(--app-border);
+  border-radius: 24px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.section-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-heading h2 {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text-strong);
+  margin: 2px 0 0;
+}
+
+.section-heading p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+.analysis-main-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .analysis-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.score-panel {
+  background: var(--app-surface-deep);
+  border: 1px solid var(--app-border);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.score-ring {
+  width: 140px;
+  height: 140px;
+  margin-bottom: 8px;
+}
+
+.score-label {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.score-panel strong {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--text-strong);
+}
+
+.score-rating-pill {
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.score-panel p {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 4px 0;
+}
+
+.score-budget-note {
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--app-panel-2);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--app-border);
+}
+
+.score-formula-note {
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+.overview-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.overview-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.overview-title h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.confidence-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 800;
+}
+.confidence-badge.danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+.confidence-badge.success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.confidence-badge.warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.overview-item {
+  background: var(--app-surface-deep);
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.overview-item-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.overview-item-icon {
+  color: var(--accent);
+}
+
+.overview-item strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-strong);
+}
+
+.signal-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  width: fit-content;
+}
+.signal-badge.danger { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+.signal-badge.success { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.signal-badge.warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+.score-breakdown {
+  background: var(--app-surface-deep);
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.score-breakdown-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.score-breakdown-head h3 {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.score-total-chip {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.score-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.score-breakdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.score-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.score-breakdown-row strong {
+  color: var(--text-strong);
+}
+
+.score-breakdown-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--app-border);
+  overflow: hidden;
+}
+
+.score-breakdown-track span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-600), var(--accent-400));
+  border-radius: 3px;
+}
+
+.score-breakdown-note {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+}
+
+.metric-card {
+  background: var(--app-surface-deep);
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.metric-icon {
+  color: var(--accent);
+}
+
+.metric-ai {
+  font-size: 9px;
+  font-weight: 900;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.metric-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.metric-card strong {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text-strong);
+}
+
+.metric-subtitle {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.insights-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.insights-brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.insights-brand h2 {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.insights-brand p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+.insights-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.recommendation-status {
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.recommendation-status.positive { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.recommendation-status.caution { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.recommendation-status.negative { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.insight-card {
+  background: var(--app-surface-deep);
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.insight-icon {
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.insight-card span {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.insight-card strong {
+  font-size: 13px;
+  color: var(--text-strong);
+  font-weight: 800;
+}
+
+.recommendation-box {
+  background: var(--app-surface-deep);
+  border: 1px solid var(--accent-border);
+  border-radius: 16px;
+  padding: 16px 20px;
+}
+
+.recommendation-label {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.recommendation-box p {
+  font-size: 12px;
+  color: var(--text-body);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.recommendation-actions {
+  background: var(--app-panel-2);
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+}
+
+.recommendation-actions-title {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.recommendation-actions ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 12px;
+  color: var(--text-body);
+  line-height: 1.8;
+}
+
+.financial-basis {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.chart-summary-row {
+  display: flex;
+  gap: 20px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.chart-summary-row b {
+  color: var(--text-strong);
+}
+
+.chart-frame {
+  height: 260px;
+  width: 100%;
+}
+
+.better-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.better-heading h2 {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text-strong);
+  margin: 0;
+}
+
+.ai-picks {
+  font-size: 10px;
+  font-weight: 900;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.business-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE FIXES — index.css ke bilkul END me paste karo
+   ═══════════════════════════════════════════════════════ */
+
+/* 1. Horizontal scroll kabhi na aaye (blur blobs / wide grids ki wajah se) */
+/* body pe overflow-x NAHI lagana — usse body ka overflow-y "auto" ban jaata hai
+   (CSS spec ka overflow-x/y pairing rule) aur uske andar sticky navbar tootne lagta hai,
+   kyunki Chrome sticky ko body ke against resolve karta hai jabki actual scroll viewport pe hota hai. */
+html {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+body {
+  max-width: 100%;
+}
+#root {
+  overflow-x: clip;
+  max-width: 100vw;
+}
+
+/* 2. iOS auto-zoom rokna — inputs ka font 16px se chhota nahi hona chahiye */
+@media (max-width: 767px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* 3. page-container ka padding mobile pe kam karo (1.5rem bahut zyada hai 360px pe) */
+@media (max-width: 640px) {
+  .page-container,
+  .reference-section-inner,
+  .faq-container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Section spacing kam */
+  .landing-section,
+  .landing-page .landing-section {
+    padding-top: 36px !important;
+    padding-bottom: 36px !important;
+  }
+  .landing-page .landing-section-heading {
+    margin-bottom: 20px !important;
+  }
+  .landing-page .landing-section > .bg-gradient-to-br {
+    padding: 20px 16px !important;
+  }
+}
+
+/* 4. Tap targets — mobile pe har button/link kam se kam 40px */
+@media (max-width: 767px) {
+  button, a[role="button"] {
+    min-height: 40px;
+  }
+}
+
+/* 5. Tables mobile pe scrollable rahein, page ko na todein */
+@media (max-width: 767px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+}
+
+/* 6. Lambe words / emails / URLs se layout na phate */
+@media (max-width: 640px) {
+  h1, h2, h3, p, span, div {
+    overflow-wrap: break-word;
+  }
+}
+
+/* 7. iPhone notch / home-indicator ke liye safe area */
+body {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 8. Scrollbar hide utility (Navbar aur AIMentor already use kar rahe hain) */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+/* ═══════════════════════════════════════════════════════════════
+   ARBITRARY HEX FIX — index.css ke SABSE NEECHE paste karo
+
+   Kuch components me `bg-[#060b17]` jaise arbitrary values hain.
+   Ye Tailwind ke color variables use nahi karte, isliye theme se
+   apne aap nahi badalte — light mode me background dark reh jata
+   tha aur text (jo dark ho chuka hota hai) invisible ho jata tha.
+
+   Yahan un exact classes ko override kiya hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+html.light .bg-\[\#060b17\],
+html.light .bg-\[\#070d19\],
+html.light .bg-\[\#07090f\],
+html.light .bg-\[\#0b0f19\],
+html.light .bg-\[\#060810\],
+html.light .bg-\[\#03050a\],
+html.light .bg-\[\#05070d\],
+html.light .bg-\[\#070b16\],
+html.light .bg-\[\#060a15\],
+html.light .bg-\[\#04060c\],
+html.light .bg-\[\#060a14\] {
+  background-color: var(--app-bg) !important;
+}
+
+/* Hero / section ke decorative blur blobs light mode me halke */
+html.light [class*="blur-3xl"],
+html.light [class*="blur-2xl"] {
+  opacity: 0.25;
+}
+
+/* Dark-only gradient overlays light mode me soft */
+html.light .bg-gradient-to-b.from-slate-950,
+html.light .bg-gradient-to-t.from-slate-950,
+html.light .bg-gradient-to-br.from-slate-950 {
+  --tw-gradient-from: #ffffff;
+}
+
+/* Light mode me hero ka grid/noise pattern halka */
+html.light [style*="radial-gradient"] {
+  opacity: 0.5;
+}
+
+/* Light mode me placeholder text readable */
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* Light mode me select dropdown text */
+html.light select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GRID FIT FIX — index.css ke SABSE NEECHE paste karo.
+
+   Ye Tailwind ke breakpoints pe depend nahi karta. Seedha un
+   elements ko pakadta hai jinke class me `lg:grid-cols-N` hai,
+   aur 820px se hi N columns laga deta hai.
+
+   Isse Five Steps = 5 columns, photo cards = 4 columns,
+   aur baaki har lg: grid apne intended layout me aa jayegi —
+   bina kisi component ko chhue.
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (min-width: 820px) {
+  [class*="lg:grid-cols-5"] {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+  [class*="lg:grid-cols-4"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  [class*="lg:grid-cols-3"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 720px) {
+  [class*="lg:grid-cols-2"],
+  [class*="md:grid-cols-2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Five Steps — 5 columns me text chhota rakho taaki fit ho */
+@media (min-width: 760px) and (max-width: 1100px) {
+  [class*="lg:grid-cols-5"] h3 {
+    font-size: 0.72rem !important;
+    line-height: 1.25 !important;
+  }
+  [class*="lg:grid-cols-5"] p {
+    font-size: 0.62rem !important;
+    line-height: 1.35 !important;
+  }
+  [class*="lg:grid-cols-5"] > div {
+    padding: 0.75rem !important;
+  }
+}
+
+/* Photo cards — 4 columns me bhi readable */
+@media (min-width: 820px) and (max-width: 1100px) {
+  [class*="lg:grid-cols-4"] article h3 {
+    font-size: 0.75rem !important;
+  }
+  [class*="lg:grid-cols-4"] article p {
+    font-size: 0.62rem !important;
+    line-height: 1.4 !important;
+  }
+}
+
+/* Page ki puri width use karo — 1200px cap chhote screens pe bekar hai */
+@media (max-width: 1240px) {
+  .max-w-\[1200px\] {
+    max-width: 100% !important;
+  }
+}

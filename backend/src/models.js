@@ -31,7 +31,7 @@ export const User = model(
       name: { type: String, default: "Admin" },
       email: { type: String, required: true, unique: true, lowercase: true, trim: true },
       passwordHash: { type: String, required: true },
-      role: { type: String, enum: ["admin", "editor"], default: "admin" }
+      role: { type: String, enum: ["user", "admin", "editor", "superadmin"], default: "user" }
     },
     opts
   )

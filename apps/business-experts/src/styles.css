@@ -1,0 +1,521 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Poppins", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand: #059669;
+  --color-brand-dark: #047857;
+  --color-brand-deep: #065f46;
+  --color-brand-soft: #ecfdf5;
+  --color-ink: #0b1220;
+  --color-mist: #f6f8fc;
+
+  --shadow-soft: 0 1px 2px rgb(11 18 32 / 0.04), 0 10px 30px -12px rgb(11 18 32 / 0.12);
+  --shadow-lift:
+    0 2px 4px rgb(11 18 32 / 0.04), 0 12px 24px -8px rgb(11 18 32 / 0.08),
+    0 24px 56px -16px rgb(5 150 105 / 0.18);
+  --shadow-glow: 0 8px 24px -8px rgb(5 150 105 / 0.5);
+
+  --animate-marquee: marquee 36s linear infinite;
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-float-slow: float 10s ease-in-out infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-14px);
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: -200% 0;
+    }
+    to {
+      background-position: 200% 0;
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white font-sans text-slate-600 antialiased;
+  font-feature-settings: "cv02", "cv03", "cv04";
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-brand), white 78%);
+  color: var(--color-brand-deep);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  @apply font-display text-ink;
+}
+
+.container-x {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+.section-pad {
+  @apply py-20 md:py-28;
+}
+
+.glass {
+  @apply border border-white/60 bg-white/70 backdrop-blur-xl;
+}
+
+.shimmer-bg {
+  background: linear-gradient(90deg, rgba(226, 232, 240, 0.5) 0%, rgba(241, 245, 249, 0.95) 50%, rgba(226, 232, 240, 0.5) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite linear;
+}
+
+/* ------------------------------- Backgrounds ------------------------------- */
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(11 18 32 / 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(11 18 32 / 0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.bg-dots {
+  background-image: radial-gradient(rgb(255 255 255 / 0.16) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+}
+
+.hero-img-blend {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 22%);
+  mask-image: linear-gradient(to right, transparent, black 22%);
+}
+
+.hero-glow {
+  background:
+    radial-gradient(56rem 30rem at 82% -12%, color-mix(in oklab, var(--color-brand), transparent 85%), transparent 62%),
+    radial-gradient(44rem 26rem at -8% 26%, color-mix(in oklab, var(--color-brand), transparent 90%), transparent 60%),
+    radial-gradient(30rem 20rem at 50% 110%, color-mix(in oklab, var(--color-brand), transparent 93%), transparent 60%),
+    linear-gradient(to bottom, #f8fafc, #ffffff);
+}
+
+.fade-mask {
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, black 30%, transparent 75%);
+}
+
+/* --------------------------------- Buttons --------------------------------- */
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-300;
+}
+
+@utility chip {
+  @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
+}
+
+.btn-primary {
+  @apply btn relative text-white;
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-brand), white 16%),
+    var(--color-brand) 52%,
+    color-mix(in oklab, var(--color-brand), black 14%)
+  );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.28),
+    0 1px 2px rgb(11 18 32 / 0.12),
+    0 10px 24px -8px color-mix(in oklab, var(--color-brand), transparent 45%);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.28),
+    0 2px 4px rgb(11 18 32 / 0.12),
+    0 18px 36px -10px color-mix(in oklab, var(--color-brand), transparent 35%);
+}
+
+.btn-secondary {
+  @apply btn border border-slate-200 bg-white text-ink shadow-soft;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--color-brand), transparent 60%);
+  color: var(--color-brand);
+  box-shadow: var(--shadow-lift);
+}
+
+.btn-ghost {
+  @apply btn px-4 py-2 text-brand hover:bg-brand-soft;
+}
+
+/* ---------------------------------- Cards ---------------------------------- */
+
+.card {
+  @apply overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-soft transition-all duration-300;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  border-color: color-mix(in oklab, var(--color-brand), transparent 75%);
+  box-shadow: var(--shadow-lift);
+}
+
+.gradient-border {
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(
+        135deg,
+        var(--color-brand),
+        color-mix(in oklab, var(--color-brand), white 45%),
+        var(--color-brand-deep)
+      )
+      border-box;
+}
+
+.eyebrow {
+  @apply chip uppercase tracking-[0.14em];
+  color: var(--color-brand);
+  background: color-mix(in oklab, var(--color-brand), white 92%);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-brand), transparent 82%);
+}
+
+.gradient-text {
+  @apply bg-gradient-to-r from-brand via-brand-dark to-brand-deep bg-clip-text text-transparent;
+}
+
+.input {
+  @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink shadow-soft outline-none transition placeholder:text-slate-400 focus:border-brand focus:ring-4 focus:ring-brand/10;
+}
+
+/* ---------------------- Training Program Detail Layout --------------------- */
+
+.program-detail-page {
+  background: #ffffff;
+}
+
+.program-shell {
+  width: min(100% - 48px, 1180px);
+  margin-inline: auto;
+}
+
+.program-breadcrumb {
+  position: relative;
+  z-index: 2;
+  padding-block: 16px;
+}
+
+.program-hero-wrap {
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+}
+
+.program-hero {
+  position: relative;
+  min-height: 410px;
+  overflow: hidden;
+  background: #071426;
+  padding: 48px;
+  color: #ffffff;
+}
+
+.program-hero .program-breadcrumb {
+  padding-block: 0;
+  margin-bottom: 28px;
+}
+
+.program-hero .program-breadcrumb nav {
+  color: rgb(255 255 255 / 0.65);
+}
+
+.program-hero .program-breadcrumb nav a:hover {
+  color: #ffffff;
+}
+
+.program-hero .program-breadcrumb nav span.text-ink {
+  color: #ffffff;
+}
+
+.program-hero-media {
+  position: absolute;
+  inset-block: 0;
+  right: 0;
+  width: 58%;
+}
+
+.program-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.62;
+}
+
+.program-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, #071426 0%, rgb(7 20 38 / 0.96) 42%, rgb(7 20 38 / 0.58) 67%, rgb(7 20 38 / 0.18) 100%),
+    linear-gradient(0deg, rgb(7 20 38 / 0.22), rgb(7 20 38 / 0.22));
+}
+
+.program-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+}
+
+.program-detail-page .program-hero h1 {
+  margin-top: 22px;
+  max-width: 540px;
+  font-size: 42px;
+  line-height: 1.16;
+  letter-spacing: 0;
+}
+
+.program-detail-page .program-hero p {
+  max-width: 540px;
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.program-main-wrap {
+  margin-top: 14px;
+  padding-bottom: 36px;
+}
+
+.program-main-card {
+  overflow: hidden;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgb(11 18 32 / 0.04),
+    0 18px 48px -32px rgb(11 18 32 / 0.18);
+}
+
+.program-card-body {
+  padding: 34px;
+}
+
+.program-content-grid {
+  display: grid;
+  gap: 44px;
+  grid-template-columns: minmax(0, 1fr) 350px;
+}
+
+.program-detail-page h2 {
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.program-detail-page .program-card-body p,
+.program-detail-page .program-card-body li {
+  font-size: 14px;
+}
+
+.program-curriculum-block {
+  margin-top: 32px !important;
+  max-width: none;
+}
+
+.program-curriculum-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px !important;
+}
+
+.program-detail-page .program-curriculum-title {
+  font-size: 20px !important;
+  line-height: 1.2;
+  font-weight: 800;
+  color: #0b1220;
+}
+
+.program-curriculum-expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 13px !important;
+  font-weight: 700;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.program-curriculum-expand:hover {
+  color: var(--color-brand);
+}
+
+.program-curriculum-list {
+  display: grid;
+  gap: 10px !important;
+}
+
+.program-curriculum-row-inner {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  min-height: 56px !important;
+  gap: 14px !important;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  background: #f7f9fb;
+  padding: 0 18px !important;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.program-curriculum-row-inner:hover:not(:disabled) {
+  background: #eef2f7;
+}
+
+.program-curriculum-row-inner:disabled {
+  cursor: default;
+}
+
+.program-curriculum-lessons-list {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding: 14px 18px 14px 60px;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.program-curriculum-lesson {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.program-curriculum-lesson-index {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.program-curriculum-number {
+  display: grid;
+  width: 28px !important;
+  height: 28px !important;
+  flex: 0 0 28px !important;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-brand);
+  color: #ffffff;
+  font-size: 13px !important;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.program-curriculum-name {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: #0b1220;
+  font-size: 16px !important;
+  font-weight: 800;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.program-curriculum-lessons {
+  color: #64748b;
+  font-size: 14px !important;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.program-curriculum-chevron {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px !important;
+  color: #475569;
+}
+
+.program-cta-wrap {
+  padding-bottom: 44px;
+}
+
+@media (max-width: 1024px) {
+  .program-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .program-hero-media {
+    width: 100%;
+  }
+
+  .program-hero-overlay {
+    background: linear-gradient(90deg, #071426 0%, rgb(7 20 38 / 0.88) 62%, rgb(7 20 38 / 0.58) 100%);
+  }
+}
+
+@media (max-width: 640px) {
+  .program-shell {
+    width: min(100% - 28px, 1180px);
+  }
+
+  .program-hero {
+    min-height: 360px;
+    padding: 28px 22px;
+  }
+
+  .program-detail-page .program-hero h1 {
+    font-size: 30px;
+  }
+
+  .program-detail-page .program-hero p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .program-card-body {
+    padding: 22px;
+  }
+
+  .program-curriculum-row-inner {
+    min-height: 46px;
+    padding: 0 12px;
+  }
+
+  .program-curriculum-lessons {
+    display: none;
+  }
+}

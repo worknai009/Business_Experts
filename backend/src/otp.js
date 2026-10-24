@@ -70,7 +70,7 @@ otpRouter.post(
     });
 
     const result = await sendOtpEmail(email, code);
-    response.json({ ok: true, devCode: result.sent ? undefined : code });
+    response.json({ ok: true, devCode: process.env.NODE_ENV !== "production" && !result.sent ? code : undefined });
   })
 );
 

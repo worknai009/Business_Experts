@@ -1,37 +1,126 @@
+name: businessexperts
+
+x-service: &service
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
 services:
-  # Service names are prefixed with "be-" so their DNS aliases on the shared
-  # giftme_app network never collide with the other project's "frontend"/
-  # "backend" services (a collision makes Caddy route the wrong site).
-  be-backend:
-    build: ./backend
-    restart: unless-stopped
-    env_file: .env
+  be-mongo:
+    <<: *service
+    image: mongo:8.0
     environment:
-      - PORT=5000
+      MONGO_INITDB_ROOT_USERNAME: be_admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-}
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: [CMD, mongosh, --quiet, --eval, "quit(db.adminCommand('ping').ok ? 0 : 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks: [default]
+
+  be-backend:
+    <<: *service
+    build: ./backend
+    environment:
+      NODE_ENV: production
+      PORT: "5000"
+      TRUST_PROXY: "1"
+      MONGODB_URI: ${MONGODB_URI:-mongodb://be_admin:${MONGO_ROOT_PASSWORD}@be-mongo:27017/business_experts?authSource=admin}
+      JWT_SECRET: ${JWT_SECRET:?Run the environment setup first}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@businessexperts.asia}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      SEED_DATABASE: ${SEED_DATABASE:-true}
+      BOOTSTRAP_ADMIN: ${BOOTSTRAP_ADMIN:-true}
+      SUPERADMIN_EMAIL: ${SUPERADMIN_EMAIL:-}
+      SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD:-}
+      CORS_ORIGINS: https://businessexperts.asia,https://admin.businessexperts.asia,https://analytics.businessexperts.asia
+      PUBLIC_SITE_URL: https://businessexperts.asia
+      ADMIN_SITE_URL: https://admin.businessexperts.asia
+      AI_SITE_URL: https://analytics.businessexperts.asia
+      SITE_CONTENT_FILE: /app/data/site_content.json
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GMAIL_USER: ${GMAIL_USER:-}
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD:-}
+      EMAIL_BRAND_NAME: ${EMAIL_BRAND_NAME:-Business Experts}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
     volumes:
       - ./backend/uploads:/app/uploads
-    networks:
-      - default
-      - edge
+      - ai_data:/app/data
+    depends_on:
+      be-mongo:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:5000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+    networks: [default, edge]
 
   be-frontend:
-    build: ./frontend
-    restart: unless-stopped
-    networks:
-      - default
-      - edge
+    <<: *service
+    build: ./apps/business-experts
+    healthcheck: &web-health
+      test: [CMD, wget, -q, --spider, http://127.0.0.1/healthz]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks: [edge]
 
   be-admin:
-    build: ./admin
-    restart: unless-stopped
-    networks:
-      - default
-      - edge
+    <<: *service
+    build: ./apps/admin
+    healthcheck: *web-health
+    networks: [edge]
 
-# Reverse proxy + SSL is handled by the shared Caddy container (giftme-caddy-1)
-# on the external "giftme_app" network. It routes businessexperts.asia domains to
-# be-frontend / be-admin / be-backend and manages certificates automatically.
+  be-analytics:
+    <<: *service
+    build:
+      context: ./apps/business-ai
+      args:
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID:-}
+    healthcheck: *web-health
+    networks: [edge]
+
+  be-caddy:
+    <<: *service
+    image: caddy:2-alpine
+    profiles: [standalone]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./deploy/Caddyfile.business-experts:/etc/caddy/sites/business-experts.caddy:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      be-backend:
+        condition: service_healthy
+      be-frontend:
+        condition: service_healthy
+      be-admin:
+        condition: service_healthy
+      be-analytics:
+        condition: service_healthy
+    networks: [edge]
+
 networks:
   edge:
-    external: true
-    name: giftme_app
+    name: ${EDGE_NETWORK_NAME:-businessexperts_edge}
+
+volumes:
+  mongo_data:
+  ai_data:
+  caddy_data:
+  caddy_config:

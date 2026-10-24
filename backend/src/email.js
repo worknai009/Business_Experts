@@ -20,6 +20,9 @@ export async function sendOtpEmail(email, code) {
   const brand = process.env.EMAIL_BRAND_NAME || "Business Experts";
 
   if (!activeTransporter) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("Email delivery is not configured. Set GMAIL_USER and GMAIL_APP_PASSWORD.");
+    }
     console.log(`[OTP email not configured] ${email} -> ${code}`);
     return { sent: false };
   }

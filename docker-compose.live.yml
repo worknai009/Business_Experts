@@ -1,0 +1,11 @@
+# Existing live database. Requires Docker Compose 2.24.4+ for !reset.
+# Combine with docker-compose.shared.yml only when the current proxy is shared Caddy.
+services:
+  be-mongo:
+    profiles: [fresh-database]
+  be-backend:
+    depends_on: !reset {}
+    environment:
+      MONGODB_URI: ${MONGODB_URI:?Set the existing live database connection in the root .env}
+      SEED_DATABASE: "false"
+      BOOTSTRAP_ADMIN: "false"

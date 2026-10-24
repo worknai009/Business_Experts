@@ -1,0 +1,2 @@
+# Standalone and shared Caddy use the same site definitions.
+import /etc/caddy/sites/*.caddy

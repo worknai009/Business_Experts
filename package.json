@@ -1,21 +1,17 @@
 {
-  "name": "business-experts-mern",
+  "name": "businessexperts-asia-monorepo",
   "private": true,
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm --workspace backend run dev\" \"npm --workspace frontend run dev\" \"npm --workspace admin run dev\"",
-    "build": "npm --workspace frontend run build && npm --workspace admin run build",
-    "start": "npm --workspace backend start"
-  },
-  "workspaces": [
-    "frontend",
-    "backend",
-    "admin"
-  ],
-  "devDependencies": {
-    "concurrently": "^9.1.2"
-  },
-  "dependencies": {
-    "react-router-dom": "^7.18.1"
+    "dev": "node dev.js",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:experts": "npm --prefix apps/business-experts run dev",
+    "dev:ai": "npm --prefix apps/business-ai run dev",
+    "dev:admin": "npm --prefix apps/admin run dev",
+    "install:all": "npm --prefix backend install && npm --prefix apps/business-experts install && npm --prefix apps/admin install && npm --prefix apps/business-ai install",
+    "build": "npm --prefix apps/business-experts run build && npm --prefix apps/admin run build && npm --prefix apps/business-ai run build",
+    "start": "npm --prefix backend start",
+    "test": "npm --prefix backend test"
   }
 }

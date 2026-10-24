@@ -1,50 +1,49 @@
-# Business Experts — Business Ecosystem Platform
+# Business Experts Asia
 
-A premium MERN platform where businesses, startups, investors, professionals and communities connect. Every piece of content on the website is managed from the Admin Panel — nothing is hardcoded.
+One Express/MongoDB backend and three React/Vite frontends.
 
-## Apps
+| App | Folder | Development URL | Production domain |
+| --- | --- | --- | --- |
+| Public website | apps/business-experts | http://localhost:5180 | businessexperts.asia |
+| Admin | apps/admin | http://localhost:5181 | admin.businessexperts.asia |
+| BusinessAI | apps/business-ai | http://localhost:5173 | analytics.businessexperts.asia |
+| Unified backend | backend | http://localhost:5000 | api.businessexperts.asia |
 
-| App | URL (dev) | Description |
-|---|---|---|
-| `frontend/` | http://localhost:5173 | Public website (React 19, TailwindCSS 4, Framer Motion) |
-| `admin/` | http://localhost:5174 | Admin panel (JWT-protected CMS + dashboard) |
-| `backend/` | http://localhost:5000 | Express + MongoDB API |
+Target VPS: **76.13.185.120**.
 
-## Quick start
+## Deployment
 
-```bash
-npm install
-npm run dev        # starts backend + frontend + admin together
-```
+For the current move to a new VPS, follow [deploy/MIGRATION.md](deploy/MIGRATION.md). It covers preserving the existing database/environment, transferring media, staging the new server and switching DNS.
 
-Requires Node 20+ and a local MongoDB on `mongodb://127.0.0.1:27017` (configurable in `backend/.env`). On first run the database is seeded automatically with default content, media and the admin user.
-
-**Admin login** (change in `backend/.env`):
-
-- Email: `admin@businessexperts.asia`
-- Password: `admin123`
-
-## What the admin controls
-
-Hero (text, buttons, image, stats) · Services · Projects (cover, gallery, video, logo, tech, status, URLs, featured, order) · Events (banner, date, venue, seats, registration, gallery) · Memberships (5 programs) · Testimonials (incl. video reviews) · Gallery (photos/videos, categories) · Blog (SEO fields, tags, publish date) · FAQs · Team · Partners & Sponsors · Contact details (email, phone, WhatsApp, address, map) · Footer (links, newsletter, copyright) · Announcement bar · Popup · Homepage section order & visibility · Theme colors · SEO/meta · Messages & membership applications · Newsletter subscribers.
-
-Changes publish to the website instantly — the frontend reads everything from the API.
-
-## Media uploads
-
-Uploads work out of the box (stored in `backend/uploads/`, served at `/api/media/uploads/...`). To use Cloudinary instead, set in `backend/.env`:
-
-```
-CLOUDINARY_CLOUD_NAME=…
-CLOUDINARY_API_KEY=…
-CLOUDINARY_API_SECRET=…
-```
-
-## Production build
+See [deploy/README.md](deploy/README.md) for the full configuration reference.
 
 ```bash
-npm run build      # builds frontend/dist and admin/dist
-npm start          # runs the API
+# Already live: preserve the current database URI, signing key and provider
+# credentials in the root .env; verify the existing proxy, storage and backup.
+# See the existing-installation section of deploy/README.md first.
+bash deploy/server-deploy.sh existing --prepare
+# After verifying files/database and switching DNS to the destination:
+bash deploy/server-deploy.sh existing
+# If the DESTINATION has an existing shared Caddy, use "existing-shared" instead.
 ```
 
-Serve the two `dist/` folders behind any static host and proxy `/api` to the backend.
+Production uses the root .env; it is never committed or copied into frontend images. Existing-installation modes reuse the configured live database and disable new database startup, sample data seeding and admin creation. The locally generated root .env is a template; verify it against the VPS before deployment.
+
+## Local development
+
+Use Node 24 and a local MongoDB instance.
+
+```bash
+npm run install:all
+# Copy backend/.env.example to backend/.env and configure local settings.
+npm run dev
+```
+
+All frontend API calls use /api or /ai-api. Vite proxies them to localhost:5000 in development; Caddy proxies them to the backend in production.
+
+```bash
+npm run build
+npm test
+```
+
+Production auth uses database users and signed JWTs. The admin account is created from environment settings on first startup. BusinessAI CMS writes require staff access. Readiness checks require a connected database and completed startup.

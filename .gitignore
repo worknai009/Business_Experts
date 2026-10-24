@@ -1,25 +1,44 @@
 # Dependencies
 node_modules/
+**/node_modules/
 
-# Builds
+# Production / Build outputs
 dist/
+**/dist/
+build/
+**/build/
 *.tsbuildinfo
 
-# Environment files (never commit secrets)
+# Environment files
 .env
-.env.local
-.env.production
+.env.*
 !.env.example
+**/.env
+**/.env.*
+!**/.env.example
 
-# Vite cache
+# Cache & Temp
 .vite/
-
-# Logs
+**/.vite/
+.cache/
+**/.cache/
 *.log
+npm-debug.log*
+.npm-cache/
+.deployment-tools/
+backend/data/
+backups/
+migration/
+yarn-debug.log*
+yarn-error.log*
 
-# OS
+# OS / IDE
 .DS_Store
 Thumbs.db
-
-# Certbot / SSL (server-side only)
-deploy/certbot/
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

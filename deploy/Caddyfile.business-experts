@@ -1,61 +1,49 @@
-# Add these site blocks to the shared Caddyfile used by giftme-caddy-1.
-# Keep the apex and www hosts separate so a www certificate issue cannot break
-# the main site certificate.
-
-businessexperts.asia {
-    import security_headers
-    encode zstd gzip
-
-    handle /api/* {
-        reverse_proxy be-backend:5000
-    }
-
-    handle /uploads/* {
-        reverse_proxy be-backend:5000
-    }
-
-    handle {
-        reverse_proxy be-frontend:80
-    }
-
-    log {
-        output stdout
-        format console
-    }
+# Shared mode: import this file and connect Caddy to the edge network.
+(be_headers) {
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options SAMEORIGIN
+		-Server
+	}
+	encode zstd gzip
+	request_body {
+		max_size 25MB
+	}
 }
 
-www.businessexperts.asia {
-    import security_headers
-    encode zstd gzip
+(be_api_routes) {
+	@backend path /api /api/* /ai-api /ai-api/*
+	handle @backend {
+		reverse_proxy be-backend:5000
+	}
+}
 
-    redir https://businessexperts.asia{uri} permanent
+businessexperts.asia {
+	import be_headers
+	import be_api_routes
+	handle {
+		reverse_proxy be-frontend:80
+	}
 }
 
 admin.businessexperts.asia {
-    import security_headers
-    encode zstd gzip
+	import be_headers
+	import be_api_routes
+	handle {
+		reverse_proxy be-admin:80
+	}
+}
 
-    handle /api/* {
-        reverse_proxy be-backend:5000
-    }
-
-    handle /uploads/* {
-        reverse_proxy be-backend:5000
-    }
-
-    handle {
-        reverse_proxy be-admin:80
-    }
+analytics.businessexperts.asia {
+	import be_headers
+	import be_api_routes
+	handle {
+		reverse_proxy be-analytics:80
+	}
 }
 
 api.businessexperts.asia {
-    import security_headers
-    encode zstd gzip
-
-    reverse_proxy be-backend:5000
-
-    log {
-        output stdout
-        format console
-    }
+	import be_headers
+	reverse_proxy be-backend:5000
 }
