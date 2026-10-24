@@ -55,6 +55,23 @@ if [[ "$ACTION" = --prepare ]]; then
   exit 0
 fi
 
+temporary_www=""
+cleanup_www() {
+  if [[ -n "$temporary_www" ]]; then
+    rm -f -- "$temporary_www"
+    docker exec "$PROXY" nginx -t && docker exec "$PROXY" nginx -s reload
+  fi
+}
+trap cleanup_www EXIT
+if ! grep -q 'www.businessexperts.asia' "$site"; then
+  candidate_www="$CONFIG_DIR/business-experts-www-acme.conf"
+  [[ ! -e "$candidate_www" ]] || { echo "Existing temporary www route requires review." >&2; exit 1; }
+  install -m 644 "$PROJECT_DIR/deploy/nginx/www-acme.conf" "$candidate_www"
+  temporary_www="$candidate_www"
+  docker exec "$PROXY" nginx -t
+  docker exec "$PROXY" nginx -s reload
+fi
+
 TLS_EMAIL="${TLS_EMAIL:-${2:-}}"
 if [[ -z "$TLS_EMAIL" ]]; then
   TLS_EMAIL="$(sed -n "s/^GMAIL_USER='\([^']*\)'$/\1/p" "$SHARED/.env" | head -n 1)"
@@ -65,9 +82,9 @@ fi
 [[ "$TLS_EMAIL" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]] || {
   echo "A valid TLS contact email is required." >&2; exit 1;
 }
-docker exec "$CERTBOT" certbot certonly --non-interactive --agree-tos --email "$TLS_EMAIL" \
+docker exec "$CERTBOT" certbot certonly --non-interactive --agree-tos --expand --email "$TLS_EMAIL" \
   --webroot --webroot-path /var/www/certbot --cert-name businessexperts.asia \
-  -d businessexperts.asia -d admin.businessexperts.asia \
+  -d businessexperts.asia -d www.businessexperts.asia -d admin.businessexperts.asia \
   -d analytics.businessexperts.asia -d api.businessexperts.asia
 install -m 755 "$PROJECT_DIR/deploy/renew-shared-cert.sh" /usr/local/sbin/business-experts-renew
 cat > /etc/systemd/system/business-experts-renew.service <<'UNIT'

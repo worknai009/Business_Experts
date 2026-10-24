@@ -30,6 +30,10 @@ if [[ "$MODE" = deploy ]]; then
     echo "Issue the TLS certificate with Prepare shared VPS (tls phase), or use prepare mode before DNS cutover." >&2
     exit 1
   }
+  openssl x509 -in "$CERT_DIR/fullchain.pem" -noout -checkhost www.businessexperts.asia >/dev/null || {
+    echo "Certificate does not cover www.businessexperts.asia; run the TLS setup phase first." >&2
+    exit 1
+  }
 fi
 
 export IMAGE_PREFIX IMAGE_TAG SHARED_DIR
@@ -126,6 +130,7 @@ if [[ "$MODE" = deploy ]]; then
   # This prevents stale DNS from verifying the old VPS by mistake.
   for target in \
     businessexperts.asia/ \
+    www.businessexperts.asia/ \
     admin.businessexperts.asia/ \
     analytics.businessexperts.asia/ \
     api.businessexperts.asia/api/health \
@@ -143,6 +148,9 @@ if [[ "$MODE" = deploy ]]; then
       [[ "$content_type" = *text/html* ]]
     fi
   done
+  redirect="$(curl --noproxy '*' --resolve www.businessexperts.asia:443:127.0.0.1 --fail --silent --show-error \
+    --max-time 15 --output /dev/null --write-out '%{redirect_url}' https://www.businessexperts.asia/)"
+  [[ "$redirect" = https://businessexperts.asia/ ]]
 fi
 
 printf 'IMAGE_PREFIX=%s\nIMAGE_TAG=%s\n' "$IMAGE_PREFIX" "$IMAGE_TAG" > "$STATE.tmp"

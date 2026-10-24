@@ -61,7 +61,7 @@ Next run CI and production deployment manually with mode prepare. All four app c
 
 ## DNS and TLS
 
-Point the @, admin, analytics and api A records at 76.13.185.120. Preserve other active hosts separately. Add AAAA only if IPv6 also reaches this server.
+Point the @, www, admin, analytics and api A records at 76.13.185.120. www is included in the certificate and redirects to the apex over verified HTTPS. Preserve other active hosts separately. Add AAAA only if IPv6 also reaches this server.
 
 Run Prepare shared VPS -> phase tls, or:
 

@@ -25,6 +25,7 @@ cat > "$TEST_ROOT/bin/curl" <<'MOCK'
 printf 'curl %s\n' "$*" >> "$TEST_LOG"
 if [[ " $* " = *https://* ]]; then
   [[ "${FAIL_STAGE:-}" != https ]] || exit 22
+  if [[ "$*" = *'%{redirect_url}'* ]]; then echo https://businessexperts.asia/; exit 0; fi
   if [[ "$*" = *'/api/'* || "$*" = *'/ai-api/'* ]]; then
     [[ "${FAIL_STAGE:-}" != type ]] || { echo text/html; exit 0; }
     echo application/json
@@ -43,6 +44,11 @@ MOCK
 cat > "$TEST_ROOT/bin/flock" <<'MOCK'
 #!/usr/bin/env bash
 exit 0
+MOCK
+cat > "$TEST_ROOT/bin/openssl" <<'MOCK'
+#!/usr/bin/env bash
+echo "openssl $*" >> "$TEST_LOG"
+[[ "${FAIL_STAGE:-}" != certificate ]]
 MOCK
 chmod +x "$TEST_ROOT/bin/"*
 export PATH="$TEST_ROOT/bin:$PATH"
@@ -82,8 +88,8 @@ run_case() {
     [[ "$status" != 0 ]] || { echo "Expected failure in $name" >&2; return 1; }
     if [[ "$previous" = yes ]]; then
       grep -q "IMAGE_TAG=$OLD_TAG" "$root/shared/state/current.env"
-      if [[ "$fail" != env ]]; then grep -q "docker tag=$OLD_TAG.* up " "$root/calls.log"; fi
-    elif [[ "$fail" != env ]]; then
+      if [[ "$fail" != env && "$fail" != certificate ]]; then grep -q "docker tag=$OLD_TAG.* up " "$root/calls.log"; fi
+    elif [[ "$fail" != env && "$fail" != certificate ]]; then
       grep -q ' stop$' "$root/calls.log"
       [[ ! -f "$root/shared/state/current.env" ]]
     fi
@@ -103,3 +109,4 @@ run_case failed-https deploy https yes failure
 run_case wrong-api-type deploy type yes failure
 run_case first-release-failure deploy health no failure
 run_case invalid-environment deploy env yes failure
+run_case wrong-certificate deploy certificate yes failure
