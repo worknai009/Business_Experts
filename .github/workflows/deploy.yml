@@ -59,9 +59,10 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y shellcheck
-          bash -n deploy/ci-deploy.sh deploy/setup-vps.sh deploy/nginx/renew-hook.sh
-          shellcheck -x deploy/ci-deploy.sh deploy/setup-vps.sh deploy/check-production-config.sh deploy/test-ci-deploy.sh deploy/nginx/renew-hook.sh
+          bash -n deploy/ci-deploy.sh deploy/setup-vps.sh deploy/prepare-ssh.sh deploy/nginx/renew-hook.sh
+          shellcheck -x deploy/ci-deploy.sh deploy/setup-vps.sh deploy/prepare-ssh.sh deploy/test-prepare-ssh.sh deploy/check-production-config.sh deploy/test-ci-deploy.sh deploy/nginx/renew-hook.sh
           bash deploy/test-ci-deploy.sh
+          bash deploy/test-prepare-ssh.sh
       - name: Compose and Nginx validation
         run: bash deploy/check-production-config.sh
 
@@ -135,6 +136,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Prepare SSH key and show its public identity
+        run: bash deploy/prepare-ssh.sh
+      - name: Verify VPS SSH access
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! ssh -i "$HOME/.ssh/deploy_key" -p "$VPS_PORT" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o PreferredAuthentications=publickey \
+            -o StrictHostKeyChecking=yes -o ConnectTimeout=15 "$VPS_USER@$VPS_HOST" true; then
+            echo "::error::SSH login was rejected. Verify VPS_USER and authorize DEPLOY_PUBLIC_KEY from the previous step in that user's ~/.ssh/authorized_keys on the NEW VPS. Check .ssh ownership/permissions and SSH public-key policy."
+            exit 1
+          fi
       - name: Upload and deploy release
         shell: bash
         run: |
@@ -144,11 +157,7 @@ jobs:
           [[ "$VPS_HOST" = '76.13.185.120' ]] || { echo "VPS_HOST must point to the confirmed new VPS 76.13.185.120." >&2; exit 1; }
           [[ "$VPS_PORT" =~ ^[0-9]+$ && "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]
           [[ "$VPS_HOST" =~ ^[a-zA-Z0-9.-]+$ && "$VPS_USER" =~ ^[a-zA-Z_][a-zA-Z0-9_-]*$ ]]
-          install -d -m 700 "$HOME/.ssh"
-          printf '%s\n' "$VPS_SSH_KEY" > "$HOME/.ssh/deploy_key"
-          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
-          chmod 600 "$HOME/.ssh/deploy_key" "$HOME/.ssh/known_hosts"
-          SSH=(-i "$HOME/.ssh/deploy_key" -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 -o ServerAliveInterval=15)
+          SSH=(-i "$HOME/.ssh/deploy_key" -o BatchMode=yes -o IdentitiesOnly=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=yes -o ConnectTimeout=15 -o ServerAliveInterval=15)
           TARGET="$VPS_USER@$VPS_HOST"
           RELEASE_DIR="/opt/business-experts/releases/$RELEASE_SHA"
           IMAGE_PREFIX="ghcr.io/${REPOSITORY,,}"

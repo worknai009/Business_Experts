@@ -1,0 +1,37 @@
+name: Check VPS SSH access
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ssh:
+    name: Check SSH identity and access
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: production
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Show matching public key and validate private-key format
+        run: bash deploy/prepare-ssh.sh
+      - name: Test login without deploying
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! ssh -i "$HOME/.ssh/deploy_key" -p "$VPS_PORT" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o PreferredAuthentications=publickey \
+            -o StrictHostKeyChecking=yes -o ConnectTimeout=15 "$VPS_USER@$VPS_HOST" true; then
+            echo "::error::SSH access was rejected. Authorize the matching public key on the NEW VPS for the user configured in VPS_USER, then rerun this check."
+            exit 1
+          fi
+          echo "SSH access verified; no application deployment was performed."

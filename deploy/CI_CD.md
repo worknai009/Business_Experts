@@ -83,6 +83,21 @@ Create repository secrets (or secrets in the production environment):
 
 Verify the server host-key fingerprint through the provider console or another trusted channel. For a custom SSH port the known-hosts entry normally uses [76.13.185.120]:PORT. The workflow uses strict host-key verification and does not blindly trust ssh-keyscan output.
 
+If Actions reports Permission denied (publickey,password), the VPS rejected the login identity. Run Actions -> Check VPS SSH access -> Run workflow to test this separately, without building images or deploying. Its SSH key step derives the public key matching VPS_SSH_KEY and prints it as DEPLOY_PUBLIC_KEY, plus its fingerprint. Install that PUBLIC key on the new server for the exact account configured in VPS_USER; a key installed only on the old VPS will not authorize access to the new one. The private key is never printed. The workflow also rejects invalid or interactively encrypted private keys and normalizes Windows line endings.
+
+From the hosting provider's browser terminal, log in as the intended deployment user and run the following after replacing the placeholder with that public-key line (without the DEPLOY_PUBLIC_KEY= prefix):
+
+```bash
+whoami
+install -d -m 700 "$HOME/.ssh"
+touch "$HOME/.ssh/authorized_keys"
+chmod 600 "$HOME/.ssh/authorized_keys"
+PUBLIC_KEY='PASTE_THE_COMPLETE_PUBLIC_KEY_FROM_ACTIONS_HERE'
+grep -qxF "$PUBLIC_KEY" "$HOME/.ssh/authorized_keys" || printf '\n%s\n' "$PUBLIC_KEY" >> "$HOME/.ssh/authorized_keys"
+```
+
+Set VPS_USER to the verified account printed by whoami. Current deployment expects root privileges for Nginx; do not assume a different user's home directory is interchangeable. If login is still denied, inspect the server's SSH authentication logs, ownership and effective PubkeyAuthentication/PermitRootLogin policy. Changing SSH access policy is a separate server decision; the workflow does not weaken it. Re-run the failed job after access is corrected.
+
 No persistent registry PAT is required: the workflow publishes/pulls the repository's GHCR images using its GITHUB_TOKEN with job-specific package permissions. That token is passed over SSH on stdin and Docker uses a temporary credential directory, which is removed at the end. Existing GHCR packages must grant this repository Actions access if they were created separately.
 
 Repository variables:
