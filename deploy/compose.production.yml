@@ -1,0 +1,63 @@
+name: business-experts-prod
+
+x-app: &app
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  backend:
+    <<: *app
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX}-backend:${IMAGE_TAG:?Set IMAGE_TAG}
+    env_file: ${SHARED_DIR:?Set SHARED_DIR}/.env
+    environment:
+      NODE_ENV: production
+      PORT: "5000"
+      TRUST_PROXY: "1"
+      MONGODB_URI: ${MONGODB_URI:?Use the existing Atlas connection}
+      SEED_DATABASE: "false"
+      BOOTSTRAP_ADMIN: "false"
+      SITE_CONTENT_FILE: /app/data/site_content.json
+      CORS_ORIGINS: https://businessexperts.asia,https://admin.businessexperts.asia,https://analytics.businessexperts.asia
+      PUBLIC_SITE_URL: https://businessexperts.asia
+      ADMIN_SITE_URL: https://admin.businessexperts.asia
+      AI_SITE_URL: https://analytics.businessexperts.asia
+    ports:
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - ${SHARED_DIR}/uploads:/app/uploads
+      - ${SHARED_DIR}/ai-data:/app/data
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:5000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 12
+
+  public:
+    <<: *app
+    image: ${IMAGE_PREFIX}-public:${IMAGE_TAG}
+    ports:
+      - "127.0.0.1:5180:80"
+    healthcheck: &web-health
+      test: [CMD, wget, -q, --spider, http://127.0.0.1/healthz]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  admin:
+    <<: *app
+    image: ${IMAGE_PREFIX}-admin:${IMAGE_TAG}
+    ports:
+      - "127.0.0.1:5181:80"
+    healthcheck: *web-health
+
+  analytics:
+    <<: *app
+    image: ${IMAGE_PREFIX}-analytics:${IMAGE_TAG}
+    ports:
+      - "127.0.0.1:5173:80"
+    healthcheck: *web-health

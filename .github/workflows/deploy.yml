@@ -1,0 +1,160 @@
+name: CI and production deployment
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Deployment mode (prepare stages containers before DNS/HTTPS cutover)
+        type: choice
+        options: [deploy, prepare]
+        default: deploy
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify ${{ matrix.app }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { app: backend, path: backend, command: test }
+          - { app: public, path: apps/business-experts, command: build }
+          - { app: admin, path: apps/admin, command: build }
+          - { app: analytics, path: apps/business-ai, command: build }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: ${{ matrix.path }}/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: ${{ matrix.path }}
+      - run: npm run ${{ matrix.command }}
+        working-directory: ${{ matrix.path }}
+
+  configuration:
+    name: Validate deployment configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Shell and rollback checks
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+          bash -n deploy/ci-deploy.sh deploy/setup-vps.sh deploy/nginx/renew-hook.sh
+          shellcheck -x deploy/ci-deploy.sh deploy/setup-vps.sh deploy/check-production-config.sh deploy/test-ci-deploy.sh deploy/nginx/renew-hook.sh
+          bash deploy/test-ci-deploy.sh
+      - name: Compose and Nginx validation
+        run: bash deploy/check-production-config.sh
+
+  images:
+    name: Docker image ${{ matrix.app }}
+    needs: [verify, configuration]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { app: backend, context: backend }
+          - { app: public, context: apps/business-experts }
+          - { app: admin, context: apps/admin }
+          - { app: analytics, context: apps/business-ai }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Image name
+        id: image
+        env:
+          REPOSITORY: ${{ github.repository }}
+        run: echo "prefix=ghcr.io/${REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: ${{ matrix.context }}
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.image.outputs.prefix }}-${{ matrix.app }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          build-args: VITE_GOOGLE_CLIENT_ID=${{ vars.VITE_GOOGLE_CLIENT_ID }}
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app }}
+
+  deploy:
+    name: Deploy to VPS
+    needs: [verify, configuration, images]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+      REGISTRY_USER: ${{ github.actor }}
+      REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      REPOSITORY: ${{ github.repository }}
+      RELEASE_SHA: ${{ github.sha }}
+      DEPLOY_MODE: ${{ inputs.mode || 'deploy' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Upload and deploy release
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${VPS_HOST:?Set VPS_HOST}" "${VPS_USER:?Set VPS_USER}"
+          : "${VPS_SSH_KEY:?Set VPS_SSH_KEY}" "${VPS_KNOWN_HOSTS:?Set VPS_KNOWN_HOSTS}"
+          [[ "$VPS_HOST" = '76.13.185.120' ]] || { echo "VPS_HOST must point to the confirmed new VPS 76.13.185.120." >&2; exit 1; }
+          [[ "$VPS_PORT" =~ ^[0-9]+$ && "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$VPS_HOST" =~ ^[a-zA-Z0-9.-]+$ && "$VPS_USER" =~ ^[a-zA-Z_][a-zA-Z0-9_-]*$ ]]
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$VPS_SSH_KEY" > "$HOME/.ssh/deploy_key"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/deploy_key" "$HOME/.ssh/known_hosts"
+          SSH=(-i "$HOME/.ssh/deploy_key" -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 -o ServerAliveInterval=15)
+          TARGET="$VPS_USER@$VPS_HOST"
+          RELEASE_DIR="/opt/business-experts/releases/$RELEASE_SHA"
+          IMAGE_PREFIX="ghcr.io/${REPOSITORY,,}"
+          tar -czf "$RUNNER_TEMP/release.tar.gz" deploy/ci-deploy.sh deploy/compose.production.yml deploy/nginx
+          ssh "${SSH[@]}" -p "$VPS_PORT" "$TARGET" "umask 077; mkdir -p '$RELEASE_DIR'"
+          scp "${SSH[@]}" -P "$VPS_PORT" "$RUNNER_TEMP/release.tar.gz" "$TARGET:$RELEASE_DIR/release.tar.gz"
+          ssh "${SSH[@]}" -p "$VPS_PORT" "$TARGET" "tar -xzf '$RELEASE_DIR/release.tar.gz' -C '$RELEASE_DIR'"
+          printf '%s\n' "$REGISTRY_PASSWORD" | ssh "${SSH[@]}" -p "$VPS_PORT" "$TARGET" \
+            "bash '$RELEASE_DIR/deploy/ci-deploy.sh' '$IMAGE_PREFIX' '$RELEASE_SHA' '$DEPLOY_MODE' '$REGISTRY_USER'"

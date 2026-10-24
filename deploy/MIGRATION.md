@@ -1,6 +1,7 @@
 # Move the existing website to a new VPS
 
 Confirmed destination VPS: **76.13.185.120**.
+For the current automated Docker + Nginx deployment, use [CI_CD.md](CI_CD.md). The manual commands below describe the older Caddy path; its file/database discovery notes still apply. CI/CD stores migrated files in /opt/business-experts/shared/uploads and shared/ai-data instead of the manual stack's locations.
 The source code contains a MongoDB Atlas connection. If this is also the current production database, keep the exact connection and database name; only the application server and its local files need to move.
 
 ## 1. Capture the old installation

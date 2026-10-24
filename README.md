@@ -13,21 +13,21 @@ Target VPS: **76.13.185.120**.
 
 ## Deployment
 
-For the current move to a new VPS, follow [deploy/MIGRATION.md](deploy/MIGRATION.md). It covers preserving the existing database/environment, transferring media, staging the new server and switching DNS.
+The current CI/CD pipeline uses **GitHub Actions, Docker/GHCR and Nginx**. Follow [deploy/CI_CD.md](deploy/CI_CD.md) for VPS setup, GitHub secrets, HTTPS, staging and automatic deployment.
 
-See [deploy/README.md](deploy/README.md) for the full configuration reference.
+For the move to the new VPS, [deploy/MIGRATION.md](deploy/MIGRATION.md) also documents locating the old files/database settings. The older [deployment reference](deploy/README.md) describes the separate manual Caddy setup.
 
 ```bash
-# Already live: preserve the current database URI, signing key and provider
-# credentials in the root .env; verify the existing proxy, storage and backup.
-# See the existing-installation section of deploy/README.md first.
-bash deploy/server-deploy.sh existing --prepare
-# After verifying files/database and switching DNS to the destination:
-bash deploy/server-deploy.sh existing
-# If the DESTINATION has an existing shared Caddy, use "existing-shared" instead.
+# One-time setup ON THE NEW VPS, from an uploaded/checked-out source directory:
+sudo bash deploy/setup-vps.sh --prepare
+# Configure /opt/business-experts/shared/.env and migrate uploads/AI content.
+# Configure the GitHub secrets and run Actions in prepare mode.
+# After DNS cutover, issue TLS using your real contact email:
+sudo bash deploy/setup-vps.sh your-real-email@example.com
+# Run Actions in deploy mode; future main pushes deploy automatically when enabled.
 ```
 
-Production uses the root .env; it is never committed or copied into frontend images. Existing-installation modes reuse the configured live database and disable new database startup, sample data seeding and admin creation. The locally generated root .env is a template; verify it against the VPS before deployment.
+CI/CD production uses /opt/business-experts/shared/.env, separate from release files. It reuses the configured live database and disables new database startup, sample data seeding and admin creation. The locally generated root .env is a template; verify real production settings before deployment. Legacy manual Compose commands still use the root .env.
 
 ## Local development
 
@@ -46,4 +46,4 @@ npm run build
 npm test
 ```
 
-Production auth uses database users and signed JWTs. The admin account is created from environment settings on first startup. BusinessAI CMS writes require staff access. Readiness checks require a connected database and completed startup.
+Production auth uses database users and signed JWTs. CI/CD preserves existing user accounts; administrator bootstrap is disabled. BusinessAI CMS writes require staff access. Readiness checks require a connected database and completed startup.

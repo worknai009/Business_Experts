@@ -2,6 +2,8 @@
 
 Target VPS: **76.13.185.120**. Run these commands on a Linux VPS from the uploaded repository root.
 
+The current automated Docker + Nginx pipeline is documented in [CI_CD.md](CI_CD.md). This file retains the earlier manual Caddy deployment reference.
+
 For the current move between VPS servers, start with [MIGRATION.md](MIGRATION.md). The destination can use a new proxy while retaining the existing Atlas database.
 
 ## Existing live website and database (current installation)
