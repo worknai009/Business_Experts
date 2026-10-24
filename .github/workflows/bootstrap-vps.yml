@@ -1,0 +1,65 @@
+name: Prepare shared VPS
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: Prepare directories/proxy or issue the domain TLS certificate
+        type: choice
+        options: [prepare, tls]
+        default: prepare
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-refs/heads/main
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+      BOOTSTRAP_ENV: ${{ secrets.BE_BOOTSTRAP_ENV }}
+      PHASE: ${{ inputs.phase }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: bash deploy/prepare-ssh.sh
+      - name: Transfer private environment and prepare existing proxy
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$PHASE" = prepare || "$PHASE" = tls ]]
+          SSH=(-i "$HOME/.ssh/deploy_key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15)
+          TARGET="$VPS_USER@$VPS_HOST"
+          SETUP_DIR="/opt/business-experts/setup/$GITHUB_SHA"
+          ssh "${SSH[@]}" -p "$VPS_PORT" "$TARGET" "umask 077; mkdir -p '$SETUP_DIR' /opt/business-experts/shared"
+          if [[ -n "$BOOTSTRAP_ENV" ]]; then
+            printf '%s\n' "$BOOTSTRAP_ENV" | ssh "${SSH[@]}" -p "$VPS_PORT" "$TARGET" '
+              set -eu
+              umask 077
+              temporary=$(mktemp /opt/business-experts/shared/.env.upload.XXXXXX)
+              trap '\''rm -f "$temporary"'\'' EXIT
+              cat > "$temporary"
+              test -s "$temporary"
+              if test -e /opt/business-experts/shared/.env; then
+                echo "Existing production environment preserved."
+              else
+                ln "$temporary" /opt/business-experts/shared/.env
+                chmod 600 /opt/business-experts/shared/.env
+                echo "Private production environment installed; values were not printed."
+              fi'
+          fi
+          tar -czf "$RUNNER_TEMP/setup.tar.gz" deploy/setup-shared-vps.sh deploy/renew-shared-cert.sh deploy/nginx
+          scp "${SSH[@]}" -P "$VPS_PORT" "$RUNNER_TEMP/setup.tar.gz" "$TARGET:$SETUP_DIR/setup.tar.gz"
+          ssh "${SSH[@]}" -p "$VPS_PORT" "$TARGET" \
+            "tar -xzf '$SETUP_DIR/setup.tar.gz' -C '$SETUP_DIR'; bash '$SETUP_DIR/deploy/setup-shared-vps.sh' '--$PHASE'"

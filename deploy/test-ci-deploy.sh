@@ -17,7 +17,8 @@ printf 'docker tag=%s %s\n' "${IMAGE_TAG:-}" "$*" >> "$TEST_LOG"
 if [[ "$1" = login ]]; then cat >/dev/null; exit 0; fi
 if [[ " $* " = *' run '* && "${FAIL_STAGE:-}" = env ]]; then exit 1; fi
 if [[ " $* " = *' up '* && "${FAIL_STAGE:-}" = up && "$IMAGE_TAG" = a* ]]; then exit 1; fi
-if [[ " $* " = *' exec '* && "${FAIL_STAGE:-}" = health && "$IMAGE_TAG" = a* ]]; then exit 1; fi
+if [[ " $* " = *' exec -T be-'* && "${FAIL_STAGE:-}" = health && "$IMAGE_TAG" = a* ]]; then exit 1; fi
+if [[ " $* " = *' exec healthoil-nginx-1 nginx -t '* && "${FAIL_STAGE:-}" = nginx && "$IMAGE_TAG" = a* ]]; then exit 1; fi
 MOCK
 cat > "$TEST_ROOT/bin/curl" <<'MOCK'
 #!/usr/bin/env bash
@@ -50,13 +51,14 @@ run_case() {
   local name=$1 mode=$2 fail=$3 previous=$4 expected=$5
   local root="$TEST_ROOT/$name"
   local release="$root/releases/$NEW_TAG"
-  mkdir -p "$release/deploy" "$root/shared/state" "$root/nginx/conf.d" "$root/nginx/snippets" "$root/certs"
+  mkdir -p "$release/deploy" "$root/shared/state" "$root/nginx" "$root/certs"
   cp "$PROJECT_DIR/deploy/ci-deploy.sh" "$release/deploy/"
   cp -R "$PROJECT_DIR/deploy/nginx" "$release/deploy/"
   cp "$PROJECT_DIR/deploy/compose.production.yml" "$release/deploy/"
   echo 'MONGODB_URI=mongodb://example.invalid/test' > "$root/shared/.env"
-  echo old-nginx > "$root/nginx/conf.d/business-experts.conf"
-  for file in be-proxy.conf be-api.conf be-tls.conf; do echo old-snippet > "$root/nginx/snippets/$file"; done
+  echo old-nginx > "$root/nginx/business-experts.conf"
+  echo existing-healthoil-site > "$root/nginx/app.conf"
+  for file in business-experts-proxy.inc business-experts-api.inc business-experts-tls.inc; do echo old-snippet > "$root/nginx/$file"; done
   echo fixture > "$root/certs/fullchain.pem"
   echo fixture > "$root/certs/privkey.pem"
   if [[ "$previous" = yes ]]; then
@@ -74,7 +76,7 @@ run_case() {
     if [[ "$mode" = prepare ]]; then
       if grep -q 'https://' "$root/calls.log"; then echo "Prepare attempted HTTPS checks" >&2; return 1; fi
       if grep -q 'systemctl' "$root/calls.log"; then echo "Prepare reloaded Nginx" >&2; return 1; fi
-      grep -q old-nginx "$root/nginx/conf.d/business-experts.conf"
+      grep -q old-nginx "$root/nginx/business-experts.conf"
     fi
   else
     [[ "$status" != 0 ]] || { echo "Expected failure in $name" >&2; return 1; }
@@ -85,9 +87,10 @@ run_case() {
       grep -q ' stop$' "$root/calls.log"
       [[ ! -f "$root/shared/state/current.env" ]]
     fi
-    grep -q old-nginx "$root/nginx/conf.d/business-experts.conf"
+    grep -q old-nginx "$root/nginx/business-experts.conf"
   fi
   if grep -q fixture-token "$root/calls.log"; then echo "Registry token appeared in logs" >&2; return 1; fi
+  grep -q existing-healthoil-site "$root/nginx/app.conf"
   echo "PASS $name"
 }
 

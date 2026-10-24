@@ -16,8 +16,9 @@ BASE_DIR="${BE_DEPLOY_ROOT:-/opt/business-experts}"
 SHARED_DIR="$BASE_DIR/shared"
 RELEASE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 [[ "$RELEASE_DIR" = "$BASE_DIR/releases/$IMAGE_TAG" ]] || { echo "Unexpected release directory." >&2; exit 2; }
-NGINX_DIR="${BE_NGINX_DIR:-/etc/nginx}"
-CERT_DIR="${BE_CERT_DIR:-/etc/letsencrypt/live/businessexperts.asia}"
+NGINX_DIR="${BE_NGINX_DIR:-/var/www/HealthOil/nginx/conf.d}"
+CERT_DIR="${BE_CERT_DIR:-/var/www/HealthOil/certbot/conf/live/businessexperts.asia}"
+PROXY_CONTAINER="${BE_PROXY_CONTAINER:-healthoil-nginx-1}"
 STATE="$SHARED_DIR/state/current.env"
 [[ -f "$SHARED_DIR/.env" ]] || { echo "Missing $SHARED_DIR/.env; preserve the old production environment." >&2; exit 1; }
 mkdir -p "$SHARED_DIR/state"
@@ -26,7 +27,7 @@ flock -n 9 || { echo "Another deployment is running." >&2; exit 1; }
 
 if [[ "$MODE" = deploy ]]; then
   [[ -s "$CERT_DIR/fullchain.pem" && -s "$CERT_DIR/privkey.pem" ]] || {
-    echo "Issue the TLS certificate with deploy/setup-vps.sh first, or use prepare mode before DNS cutover." >&2
+    echo "Issue the TLS certificate with Prepare shared VPS (tls phase), or use prepare mode before DNS cutover." >&2
     exit 1
   }
 fi
@@ -58,10 +59,10 @@ trap cleanup EXIT
 docker login ghcr.io --username "$REGISTRY_USER" --password-stdin
 "${DC[@]}" config --quiet
 "${DC[@]}" pull --policy always
-"${DC[@]}" run --rm --no-deps -T backend node --input-type=module -e \
+"${DC[@]}" run --rm --no-deps -T be-backend node --input-type=module -e \
   'import {validateProductionConfig} from "./src/productionConfig.js"; validateProductionConfig(); console.log("Production environment is valid.")'
 
-MANAGED_NGINX=(conf.d/business-experts.conf snippets/be-proxy.conf snippets/be-api.conf snippets/be-tls.conf)
+MANAGED_NGINX=(business-experts.conf business-experts-proxy.inc business-experts-api.inc business-experts-tls.inc)
 NGINX_BACKUP=""
 if [[ "$MODE" = deploy ]]; then
   NGINX_BACKUP="$(mktemp -d "$SHARED_DIR/state/nginx-backup.XXXXXX")"
@@ -82,7 +83,7 @@ restore_nginx() {
       rm -f -- "$NGINX_DIR/$file"
     fi
   done
-  nginx -t && systemctl reload nginx
+  docker exec "$PROXY_CONTAINER" nginx -t && docker exec "$PROXY_CONTAINER" nginx -s reload
 }
 
 rollback() {
@@ -108,17 +109,19 @@ rollback() {
 trap rollback ERR
 
 "${DC[@]}" up -d --no-build --pull never --wait --wait-timeout 180
-"${DC[@]}" exec -T backend node -e \
+"${DC[@]}" exec -T be-backend node -e \
   'fetch("http://127.0.0.1:5000/api/health").then(async r=>{const d=await r.json(); if(!r.ok || d.database!=="connected")process.exit(1)}).catch(()=>process.exit(1))'
-for port in 5180 5181 5173; do
-  curl --noproxy '*' --fail --silent --show-error --max-time 10 "http://127.0.0.1:$port/healthz" >/dev/null
+for service in be-frontend be-admin be-analytics; do
+  "${DC[@]}" exec -T "$service" wget -q -O - http://127.0.0.1/healthz >/dev/null
 done
 
 if [[ "$MODE" = deploy ]]; then
-  install -m 644 "$RELEASE_DIR/deploy/nginx/snippets/"*.conf "$NGINX_DIR/snippets/"
-  install -m 644 "$RELEASE_DIR/deploy/nginx/production.conf" "$NGINX_DIR/conf.d/business-experts.conf"
-  nginx -t
-  systemctl reload nginx
+  for kind in proxy api tls; do
+    install -m 644 "$RELEASE_DIR/deploy/nginx/snippets/be-$kind.conf" "$NGINX_DIR/business-experts-$kind.inc"
+  done
+  install -m 644 "$RELEASE_DIR/deploy/nginx/production.conf" "$NGINX_DIR/business-experts.conf"
+  docker exec "$PROXY_CONTAINER" nginx -t
+  docker exec "$PROXY_CONTAINER" nginx -s reload
   # Resolve directly to this VPS's local Nginx, keeping TLS/Host verification.
   # This prevents stale DNS from verifying the old VPS by mistake.
   for target in \

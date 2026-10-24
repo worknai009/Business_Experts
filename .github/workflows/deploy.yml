@@ -60,7 +60,7 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y shellcheck
           bash -n deploy/ci-deploy.sh deploy/setup-vps.sh deploy/prepare-ssh.sh deploy/nginx/renew-hook.sh
-          shellcheck -x deploy/ci-deploy.sh deploy/setup-vps.sh deploy/prepare-ssh.sh deploy/test-prepare-ssh.sh deploy/check-production-config.sh deploy/test-ci-deploy.sh deploy/nginx/renew-hook.sh
+          shellcheck -x deploy/ci-deploy.sh deploy/setup-shared-vps.sh deploy/renew-shared-cert.sh deploy/setup-vps.sh deploy/prepare-ssh.sh deploy/test-prepare-ssh.sh deploy/check-production-config.sh deploy/test-ci-deploy.sh deploy/nginx/renew-hook.sh
           bash deploy/test-ci-deploy.sh
           bash deploy/test-prepare-ssh.sh
       - name: Compose and Nginx validation

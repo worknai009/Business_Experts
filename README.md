@@ -19,11 +19,11 @@ For the move to the new VPS, [deploy/MIGRATION.md](deploy/MIGRATION.md) also doc
 
 ```bash
 # One-time setup ON THE NEW VPS, from an uploaded/checked-out source directory:
-sudo bash deploy/setup-vps.sh --prepare
+sudo bash deploy/setup-shared-vps.sh --prepare
 # Configure /opt/business-experts/shared/.env and migrate uploads/AI content.
 # Configure the GitHub secrets and run Actions in prepare mode.
 # After DNS cutover, issue TLS using your real contact email:
-sudo bash deploy/setup-vps.sh your-real-email@example.com
+sudo bash deploy/setup-shared-vps.sh --tls
 # Run Actions in deploy mode; future main pushes deploy automatically when enabled.
 ```
 
@@ -46,4 +46,4 @@ npm run build
 npm test
 ```
 
-Production auth uses database users and signed JWTs. CI/CD preserves existing user accounts; administrator bootstrap is disabled. BusinessAI CMS writes require staff access. Readiness checks require a connected database and completed startup.
+Production auth uses database users and signed JWTs. CI/CD preserves existing user accounts; administrator bootstrap is disabled. BusinessAI CMS writes require staff access. Readiness checks require a connected database and completed startup. On the confirmed shared VPS, the four be-* services publish no host ports and use the existing HealthOil Nginx/Certbot on healthoil_app-network; other projects keep their ports.

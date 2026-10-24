@@ -1,157 +1,91 @@
-# Docker + Nginx CI/CD
+# Shared Docker + Nginx CI/CD
 
-Repository: worknai009/Business_Experts. Destination VPS: **76.13.185.120**.
-This is the current automated deployment path. The older Caddy files remain available for manual deployments; do not run both proxy setups on the same ports.
+Repository: worknai009/Business_Experts. Destination: **76.13.185.120**.
 
-```mermaid
-flowchart LR
-  A[Push to main] --> B[Tests and config checks]
-  B --> C[Build 4 Docker images]
-  C --> D[Publish SHA tags to GHCR]
-  D --> E[SSH deployment]
-  E --> F[Docker health checks]
-  F --> G[Nginx HTTPS checks]
-  F -->|failure| H[Previous images]
-  G -->|failure| H
-```
+The inspected VPS runs Ubuntu 24.04 and already hosts other projects. healthoil-nginx-1 owns ports 80/443; CyberShield owns host port 5000. This pipeline shares the existing Nginx/Certbot infrastructure and publishes **no Business Experts host ports**. Do not use the earlier standalone Caddy/host-Nginx instructions on this shared server.
 
-## What the workflow does
+## Delivery flow
 
-- Pull requests: install locked dependencies, run backend tests, build all frontends, check Compose/Nginx configuration, test rollback logic and build Docker images without publishing/deploying.
-- Push to main: run those checks, publish four images to GHCR tagged with the exact commit SHA, and deploy when DEPLOY_ENABLED is true.
-- Manual run: choose prepare to start/check applications before DNS cutover, or deploy for the full HTTPS rollout.
-- Failed rollout: attempt to restore previous images and the four managed Nginx files. The workflow still fails visibly. A failed first deployment is stopped because there is no prior release.
+Pull requests run backend tests, frontend builds, rollback/SSH tests, Compose/Nginx validation and Docker builds. Main pushes publish four SHA-tagged images to GHCR, then deploy when DEPLOY_ENABLED is true. Manual mode prepare starts/checks the app without activating HTTPS routes; deploy performs the full rollout. Failed rollouts attempt to restore previous application images and only this application's four Nginx files.
 
-This is a single-VPS replacement deployment, so application container replacement can cause a brief interruption. Rollback restores application images/configuration; it does not undo database writes or edits to shared files/secrets.
+The four services have unique names be-backend, be-frontend, be-admin and be-analytics on external network healthoil_app-network. Generic backend/admin aliases are avoided to prevent collisions with other projects. Nginx reaches the API on container port 5000 and frontends on container port 80. The existing Atlas database is reused; demo seeding and admin bootstrap remain disabled.
 
-## Runtime layout
+## Persistent paths
 
 | Path | Purpose |
 | --- | --- |
-| /opt/business-experts/releases/COMMIT_SHA | Deployment scripts and Compose/Nginx config for that commit |
-| /opt/business-experts/shared/.env | Verified production credentials; never uploaded by Actions |
-| /opt/business-experts/shared/uploads | Persistent existing uploads |
-| /opt/business-experts/shared/ai-data/site_content.json | Persistent BusinessAI CMS content |
-| /opt/business-experts/shared/state/current.env | Last verified image prefix/tag; contains no application credentials |
-| /etc/nginx/conf.d/business-experts.conf | Four domain routes |
-| /etc/letsencrypt/live/businessexperts.asia | SAN certificate covering the four hosts |
+| /opt/business-experts/releases/COMMIT_SHA | Release scripts and config |
+| /opt/business-experts/shared/.env | Private production credentials |
+| /opt/business-experts/shared/uploads | Persistent uploads |
+| /opt/business-experts/shared/ai-data/site_content.json | Persistent AI CMS content |
+| /opt/business-experts/shared/state/current.env | Last verified image metadata |
+| /var/www/HealthOil/nginx/conf.d/business-experts.conf | This site's routes only |
+| /var/www/HealthOil/nginx/conf.d/business-experts-*.inc | This site's includes |
+| /var/www/HealthOil/certbot/conf/live/businessexperts.asia | This site's separate SAN certificate |
 
-Production runs four application containers and uses the existing Atlas database. It does not create a MongoDB container, seed demo data, or reset/create administrator users.
-All app ports bind to loopback only: API 5000, public 5180, admin 5181, analytics 5173. Only host Nginx exposes HTTP/HTTPS. Nginx preserves /api and /ai-api paths.
+The deployment never edits HealthOil app.conf, safy.in.conf or other projects' config files, and does not stop/recreate the shared proxy. It runs nginx -t before a graceful container reload.
 
-## 1. Obtain VPS access
+## GitHub configuration
 
-Open the hosting provider's VPS panel and find its operating system and SSH/terminal section. You need the SSH username, port, and a working key. Do not guess or replace the server's existing credentials.
-
-The setup script detects Ubuntu/Debian and supports x86_64. The workflow builds linux/amd64 images. This initial setup/deployment expects a root SSH account because it installs/reloads host Nginx. A dedicated automation account requires equivalent, deliberately configured privileges.
-
-Keep the old VPS running until the destination is verified.
-
-## 2. Prepare Docker and Nginx on the destination
-
-Upload the deploy directory and root .env.example privately to a temporary source directory on the new VPS (or clone the private repository using your existing authorized access). Then run from that directory:
-
-```bash
-sudo bash deploy/setup-vps.sh --prepare
-```
-
-The script detects the OS, installs Docker/Compose and Nginx/Certbot, creates persistent directories, and installs an HTTP ACME challenge site. It refuses to proceed if another proxy owns ports 80/443. It leaves unrelated Nginx sites in place.
-
-Privately edit /opt/business-experts/shared/.env with the **old server's real** MONGODB_URI, JWT_SECRET, email/Cloudinary/AI settings. Keep the exact database name/options and existing signing key where production validation permits it. The newly generated local .env is not a verified copy of these settings.
-
-Add the destination's outbound public IP to the existing Atlas project's database IP access list. Transfer current uploads into shared/uploads and the old AI content file into shared/ai-data/site_content.json **before** starting the new backend. Paths on the old server are described in MIGRATION.md. If the old app never had custom AI content, leave that file absent to initialize the shipped defaults.
-
-```bash
-sudo chmod 600 /opt/business-experts/shared/.env
-sudo chown -R 1000:1000 /opt/business-experts/shared/uploads /opt/business-experts/shared/ai-data
-```
-
-Take an Atlas backup/export and a copy of local files/environment before cutover. Pause CMS edits/uploads for the final file synchronization. No database export/import is needed merely to point the new application at the same Atlas database.
-
-## 3. Configure GitHub Actions
-
-In the repository, open Settings -> Secrets and variables -> Actions.
-Create repository secrets (or secrets in the production environment):
+Settings -> Secrets and variables -> Actions:
 
 | Secret | Value |
 | --- | --- |
 | VPS_HOST | 76.13.185.120 |
-| VPS_USER | Actual authorized SSH username; setup currently expects root |
-| VPS_PORT | Actual SSH port, optional if 22 |
-| VPS_SSH_KEY | Dedicated deployment SSH private key; matching public key belongs in the server's authorized_keys |
-| VPS_KNOWN_HOSTS | Verified SSH host-key entry for this server/port |
+| VPS_USER | root (verified) |
+| VPS_PORT | 22 (verified) |
+| VPS_SSH_KEY | CI private key; its matching public key is authorized on this VPS |
+| VPS_KNOWN_HOSTS | Verified host-key entry for this server/port |
 
-Verify the server host-key fingerprint through the provider console or another trusted channel. For a custom SSH port the known-hosts entry normally uses [76.13.185.120]:PORT. The workflow uses strict host-key verification and does not blindly trust ssh-keyscan output.
+GITHUB_TOKEN is automatic; no permanent registry PAT is required. It is passed to the remote Docker login on stdin and its temporary Docker credential directory is removed after deployment.
 
-If Actions reports Permission denied (publickey,password), the VPS rejected the login identity. Run Actions -> Check VPS SSH access -> Run workflow to test this separately, without building images or deploying. Its SSH key step derives the public key matching VPS_SSH_KEY and prints it as DEPLOY_PUBLIC_KEY, plus its fingerprint. Install that PUBLIC key on the new server for the exact account configured in VPS_USER; a key installed only on the old VPS will not authorize access to the new one. The private key is never printed. The workflow also rejects invalid or interactively encrypted private keys and normalizes Windows line endings.
+Repository variable DEPLOY_ENABLED=true activates the deploy job. Optional VITE_GOOGLE_CLIENT_ID is a public frontend OAuth client ID, never a private secret.
 
-From the hosting provider's browser terminal, log in as the intended deployment user and run the following after replacing the placeholder with that public-key line (without the DEPLOY_PUBLIC_KEY= prefix):
+## One-time private environment transfer
 
-```bash
-whoami
-install -d -m 700 "$HOME/.ssh"
-touch "$HOME/.ssh/authorized_keys"
-chmod 600 "$HOME/.ssh/authorized_keys"
-PUBLIC_KEY='PASTE_THE_COMPLETE_PUBLIC_KEY_FROM_ACTIONS_HERE'
-grep -qxF "$PUBLIC_KEY" "$HOME/.ssh/authorized_keys" || printf '\n%s\n' "$PUBLIC_KEY" >> "$HOME/.ssh/authorized_keys"
-```
+Run `node deploy/prepare-production-env.mjs` locally to create the ignored .env.production.ready from backend/.env. Source files stay unchanged. It preserves database/provider values and creates a strong new JWT secret if the source uses a weak/development key; users must sign in again on the new deployment.
 
-Set VPS_USER to the verified account printed by whoami. Current deployment expects root privileges for Nginx; do not assume a different user's home directory is interchangeable. If login is still denied, inspect the server's SSH authentication logs, ownership and effective PubkeyAuthentication/PermitRootLogin policy. Changing SSH access policy is a separate server decision; the workflow does not weaken it. Re-run the failed job after access is corrected.
+Transfer the prepared file privately to shared/.env. A one-time automated option is to set its contents as the temporary encrypted GitHub secret BE_BOOTSTRAP_ENV, run Actions -> Prepare shared VPS -> phase prepare, then remove that secret. The workflow streams it over SSH, prints no values and refuses to replace an existing server .env. Regular deployments never upload/overwrite application secrets.
 
-No persistent registry PAT is required: the workflow publishes/pulls the repository's GHCR images using its GITHUB_TOKEN with job-specific package permissions. That token is passed over SSH on stdin and Docker uses a temporary credential directory, which is removed at the end. Existing GHCR packages must grant this repository Actions access if they were created separately.
+## Prepare the shared VPS
 
-Repository variables:
-
-| Variable | Value |
-| --- | --- |
-| DEPLOY_ENABLED | true only after server access, production environment and migrated files are ready |
-| VITE_GOOGLE_CLIENT_ID | Optional public OAuth client ID for the analytics frontend |
-
-Until DEPLOY_ENABLED is true, builds/tests/publishing can run, while the VPS deploy job stays skipped. Never put application database passwords or private keys in VITE variables.
-
-## 4. Stage applications, then switch DNS
-
-After configuring secrets and enabling deployment, go to Actions -> CI and production deployment -> Run workflow on main -> mode prepare.
-This pulls the commit's images, validates the production environment, starts all four applications and checks their health. It does not modify Nginx or perform public HTTPS checks.
-
-After verifying the containers and migrated files, update A records for @, admin, analytics and api to **76.13.185.120**. Keep/redirect other previously active domains separately where required. Allow inbound TCP 80/443 and the actual SSH port in the provider/host firewall. Add AAAA only if IPv6 also reaches this VPS.
-
-Issue the certificate from the source directory used for setup, replacing the example address with your real TLS contact email:
+Run Actions -> Prepare shared VPS -> phase prepare. CLI alternative from the current source on the VPS:
 
 ```bash
-sudo bash deploy/setup-vps.sh your-real-email@example.com
+sudo bash deploy/setup-shared-vps.sh --prepare
 ```
 
-Certbot obtains one certificate for all four names, installs the HTTPS Nginx config, and enables its renewal timer. A renewal deploy hook tests/reloads Nginx after a successful renewal.
+Setup verifies the real proxy/network mounts, creates only this app's storage, and adds its own HTTP challenge site. It copies repository uploads/AI-content snapshots from /var/www/Business_Experts without overwriting shared data. Newer changes on the old live VPS still need a final synchronization before cutover; the repository alone cannot prove those files are current. Add the new outbound IP to the existing Atlas access list when required.
 
-Then run the workflow again in deploy mode. Future pushes to main use deploy mode automatically. During the initial staging window, avoid an automatic deploy before certificates exist; it will fail its certificate preflight rather than starting the full rollout.
+Next run CI and production deployment manually with mode prepare. All four app containers must become healthy before HTTPS activation.
 
-## Verification
+## DNS and TLS
 
-The deploy script checks container readiness and verifies HTTPS **against local Nginx using curl --resolve**, preserving certificate/Host verification. This prevents cached DNS from accidentally verifying the old VPS. It checks frontend HTML and JSON API response types on all four domains.
+Point the @, admin, analytics and api A records at 76.13.185.120. Preserve other active hosts separately. Add AAAA only if IPv6 also reaches this server.
 
-Also verify externally: public navigation/media, administrator login, BusinessAI content saving, and OTP delivery. Existing application limitations listed in README.md are separate from the delivery pipeline.
+Run Prepare shared VPS -> phase tls, or:
 
 ```bash
-docker compose --project-name business-experts-prod \
-  --env-file /opt/business-experts/shared/.env \
-  -f /opt/business-experts/releases/COMMIT_SHA/deploy/compose.production.yml ps
+sudo bash deploy/setup-shared-vps.sh --tls
 ```
 
-For ad-hoc Compose commands export IMAGE_PREFIX, IMAGE_TAG and SHARED_DIR first; the last verified prefix/tag are in shared/state/current.env. Do not print the production .env into CI logs.
+The existing Certbot container obtains a separate certificate for these four names using /var/www/certbot. Contact email is taken from the production GMAIL_USER/ADMIN_EMAIL, or supplied with TLS_EMAIL. The business-experts-renew timer checks this certificate hourly and reloads the existing proxy only when certificate content changes. Other projects' certificates/settings are preserved.
 
-## Backups, retention and recovery
+Run CI and production deployment with mode deploy after issuance. Future main pushes use full deployment automatically when enabled. HTTPS checks use curl --resolve against local port 443 with real certificate verification, so cached DNS cannot accidentally verify the old VPS.
 
-Use the existing Atlas snapshot/export process. Back up shared/.env, shared/uploads and shared/ai-data privately, and copy backups outside this VPS. The older backup.sh script is for the managed local-MongoDB deployment, not this Atlas pipeline.
+## SSH troubleshooting
 
-Keep the current and previous release directories/images available for rollback. Do not run docker system prune -a during deployment. Review old unreferenced releases/images periodically to manage disk usage. The pipeline does not delete production volumes or restore database snapshots automatically.
+Actions -> Check VPS SSH access runs a read-only test/inventory. It validates private-key format, normalizes CRLF, and prints only the matching public key and fingerprint. For Permission denied, authorize that PUBLIC key in the exact VPS_USER account's ~/.ssh/authorized_keys. Directory/file modes should be 700/600 with correct ownership. The workflow does not enable passwords or weaken SSH policy.
 
-On rollout failure, inspect Actions logs, Docker container logs and nginx -t output. The state file stays on the last verified release if rollback is triggered. If automatic recovery fails, the workflow reports that explicitly and manual intervention is required. Keep the old VPS available through initial cutover as an additional routing rollback option.
+## Backups and recovery
+
+Use the existing Atlas backup/export process. Back up shared/.env, uploads and ai-data privately outside the VPS. Preserve current/previous release directories and images for rollback. Do not prune all Docker images during deployment. Rollback restores application images/config, not database writes or changes to shared files/secrets. Container replacement can cause a brief application interruption. Other projects continue running.
+
+The old backup.sh and standalone setup-vps.sh refer to different deployment layouts and are not the shared-server setup path.
 
 ## References
 
-- [GitHub: publishing Docker images](https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images)
-- [GitHub: container registry authentication](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
-- [Docker: Ubuntu installation](https://docs.docker.com/engine/install/ubuntu/)
-- [Nginx proxy module](https://nginx.org/en/docs/http/ngx_http_proxy_module.html)
-- [Certbot: webroot and renewal hooks](https://eff-certbot.readthedocs.io/en/stable/using.html)
+- https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images
+- https://docs.docker.com/compose/how-tos/networking/
+- https://nginx.org/en/docs/control.html
+- https://eff-certbot.readthedocs.io/en/stable/using.html

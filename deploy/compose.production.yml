@@ -9,7 +9,7 @@ x-app: &app
       max-file: "3"
 
 services:
-  backend:
+  be-backend:
     <<: *app
     image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX}-backend:${IMAGE_TAG:?Set IMAGE_TAG}
     env_file: ${SHARED_DIR:?Set SHARED_DIR}/.env
@@ -25,8 +25,6 @@ services:
       PUBLIC_SITE_URL: https://businessexperts.asia
       ADMIN_SITE_URL: https://admin.businessexperts.asia
       AI_SITE_URL: https://analytics.businessexperts.asia
-    ports:
-      - "127.0.0.1:5000:5000"
     volumes:
       - ${SHARED_DIR}/uploads:/app/uploads
       - ${SHARED_DIR}/ai-data:/app/data
@@ -37,27 +35,26 @@ services:
       start_period: 30s
       retries: 12
 
-  public:
+  be-frontend:
     <<: *app
     image: ${IMAGE_PREFIX}-public:${IMAGE_TAG}
-    ports:
-      - "127.0.0.1:5180:80"
     healthcheck: &web-health
       test: [CMD, wget, -q, --spider, http://127.0.0.1/healthz]
       interval: 10s
       timeout: 5s
       retries: 6
 
-  admin:
+  be-admin:
     <<: *app
     image: ${IMAGE_PREFIX}-admin:${IMAGE_TAG}
-    ports:
-      - "127.0.0.1:5181:80"
     healthcheck: *web-health
 
-  analytics:
+  be-analytics:
     <<: *app
     image: ${IMAGE_PREFIX}-analytics:${IMAGE_TAG}
-    ports:
-      - "127.0.0.1:5173:80"
     healthcheck: *web-health
+
+networks:
+  default:
+    name: ${BE_PROXY_NETWORK:-healthoil_app-network}
+    external: true
