@@ -27,7 +27,15 @@ if [[ ! -e "$SHARED/ai-data/site_content.json" && -f /var/www/Business_Experts/b
   cp /var/www/Business_Experts/backend/src/ai/site_content.json "$SHARED/ai-data/site_content.json"
 fi
 chown -R 1000:1000 "$SHARED/uploads" "$SHARED/ai-data"
-[[ -f "$SHARED/.env" ]] || { echo "Private production environment is missing." >&2; exit 1; }
+if [[ ! -f "$SHARED/.env" ]]; then
+  [[ -f /var/www/Business_Experts/.env ]] || { echo "Server-local source .env is missing." >&2; exit 1; }
+  # All credential handling stays on this VPS. No values pass through Actions.
+  docker run --rm --network none \
+    -v "$PROJECT_DIR:/source:ro" \
+    -v /var/www/Business_Experts/.env:/input.env:ro \
+    -v "$SHARED:/output" node:24-alpine \
+    node /source/deploy/prepare-production-env.mjs /input.env /output/.env
+fi
 chmod 600 "$SHARED/.env"
 
 # Existing site files are never modified. Only create our own HTTP challenge site.

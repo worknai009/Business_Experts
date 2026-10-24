@@ -12,6 +12,7 @@ if (!/^mongodb(?:\+srv)?:\/\//.test(env.MONGODB_URI || "")) {
   throw new Error("The source must contain the verified existing MongoDB connection.");
 }
 let replacedJwt = false;
+if (env.GMAIL_APP_PASSWORD) env.GMAIL_APP_PASSWORD = env.GMAIL_APP_PASSWORD.replace(/\s/g, "");
 if (!env.JWT_SECRET || env.JWT_SECRET.length < 32 || /change-me|dev-secret/i.test(env.JWT_SECRET)) {
   env.JWT_SECRET = randomBytes(48).toString("hex");
   replacedJwt = true;

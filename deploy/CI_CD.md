@@ -45,7 +45,7 @@ Repository variable DEPLOY_ENABLED=true activates the deploy job. Optional VITE_
 
 Run `node deploy/prepare-production-env.mjs` locally to create the ignored .env.production.ready from backend/.env. Source files stay unchanged. It preserves database/provider values and creates a strong new JWT secret if the source uses a weak/development key; users must sign in again on the new deployment.
 
-Transfer the prepared file privately to shared/.env. A one-time automated option is to set its contents as the temporary encrypted GitHub secret BE_BOOTSTRAP_ENV, run Actions -> Prepare shared VPS -> phase prepare, then remove that secret. The workflow streams it over SSH, prints no values and refuses to replace an existing server .env. Regular deployments never upload/overwrite application secrets.
+The source .env is now already present on the VPS at /var/www/Business_Experts/.env. Prepare shared VPS creates shared/.env from that file entirely on the same server, using a network-isolated Node container. Credentials are not uploaded to GitHub or sent through the Actions runner. An existing shared/.env is preserved. SMTP app-password display spacing is normalized and a strong JWT is generated only when the source JWT is weak. Regular deployments never upload/overwrite application secrets.
 
 ## Prepare the shared VPS
 
