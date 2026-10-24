@@ -35,3 +35,11 @@ jobs:
             exit 1
           fi
           echo "SSH access verified; no application deployment was performed."
+      - name: Inspect existing proxy and ports (read-only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -i "$HOME/.ssh/deploy_key" -p "$VPS_PORT" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o PreferredAuthentications=publickey \
+            -o StrictHostKeyChecking=yes -o ConnectTimeout=15 "$VPS_USER@$VPS_HOST" \
+            bash -s < deploy/inspect-vps.sh
